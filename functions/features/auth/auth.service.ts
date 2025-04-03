@@ -59,7 +59,7 @@ class AuthService {
     otp: string
   ): Promise<{ token: string; userId: string }> {
     // Find the user
-    const user = await User.findOne({ email }).populate('roles');
+    const user = await User.findOne({ email })
     if (!user) {
       throw new CustomError('User not found', 404);
     }

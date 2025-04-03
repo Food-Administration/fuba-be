@@ -7,14 +7,14 @@ export interface CreateUserDto {
     email: string;
     password: string;
     employmentDetails?: any;
-    roles?: string[];
+    // roles?: string[];
 }
 
 export interface UserDocument extends Document {
     _id: Types.ObjectId;
     email: string;
     password: string;
-    username?: string;
+    // username?: string;
     phNo: string;
     firstName: string;
     lastName: string;
@@ -31,7 +31,7 @@ export interface UserDocument extends Document {
     otpExpires?: Date;
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;
-    role: Schema.Types.ObjectId;
+    // role: Schema.Types.ObjectId;
     status: string;
     settings: string;
 }
@@ -40,7 +40,7 @@ const UserSchema = new Schema<UserDocument>({
     _id: { type: Schema.Types.ObjectId, auto: true },
     email: { type: String, required: true, unique: true },
     password: { type: String },
-    username: { type: String },
+    // username: { type: String },
     phNo: { type: String },
     firstName: { type: String },
     lastName: { type: String },
@@ -56,7 +56,7 @@ const UserSchema = new Schema<UserDocument>({
     otpExpires: { type: Date },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
-    role: { type: Schema.Types.ObjectId, ref: 'Role' },
+    // role: { type: Schema.Types.ObjectId, ref: 'Role' },
     status: { type: String, enum: ['active', 'block', 'inactive', 'suspended'], default: 'active' },
     settings: { type: String, default: null },
 },

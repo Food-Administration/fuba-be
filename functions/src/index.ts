@@ -6,12 +6,15 @@ import connectDB from '../config/dbConn';
 import authRoutes from '../features/auth/auth.routes';
 import CustomError from '../utils/customError';
 import os from 'os';
+
 dotenv.config();
+
 const tempDir = os.tmpdir();
 console.log(`Temporary directory: ${tempDir}`);
 
 const app = express();
-const port = process.env.SERVERPORT || 3000;
+
+connectDB(); // ✅ Always connect DB before exporting or listening
 
 // Middleware
 app.use(cors({
@@ -22,30 +25,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
+
 app.use('/api/auth', authRoutes);
 
-
-
-// Default route
-app.get('/', (req, res) => {
-  res.send('Server is running');
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.originalUrl}`);
+  next();
 });
 
-app.use(
-  (
-    err: CustomError,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error(err.stack);
-    res.status(err.status || 500).json({
-      message: err.message || 'Internal Server Error',
-      // If isEmailVerified is defined, return its value; otherwise, assume true.
-      verified: err.isEmailVerified !== undefined ? err.isEmailVerified : true,
-    });
-  }
-);
+// Default route
+// app.get('/', (req, res) => {
+//   res.send('Server is running');
+// });
+
+app.use((err: CustomError, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal Server Error',
+    verified: err.isEmailVerified !== undefined ? err.isEmailVerified : true,
+  });
+});
 
 app.all("*", async (req, res) => {
   try {
@@ -53,12 +52,15 @@ app.all("*", async (req, res) => {
   } catch (error: any) {
     throw new CustomError(error.message, 500); 
   }
-})
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-  connectDB(); // Connect to the database
 });
 
+// 👇 Only listen if running locally
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.SERVERPORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+  });
+}
+
+// 👇 Always export for Firebase
 exports.app = functions.https.onRequest(app);
