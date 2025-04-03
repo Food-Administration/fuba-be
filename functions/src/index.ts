@@ -1,26 +1,64 @@
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import dotenv from "dotenv";
-// import authRoutes from "./routes/auth.routes";
-
+const functions = require("firebase-functions");
+import express from 'express';
+const dotenv = require("dotenv");
+const cors = require('cors');
+import connectDB from '../config/dbConn';
+import authRoutes from '../features/auth/auth.routes';
+import CustomError from '../utils/customError';
+import os from 'os';
 dotenv.config();
-admin.initializeApp();
+const tempDir = os.tmpdir();
+console.log(`Temporary directory: ${tempDir}`);
 
 const app = express();
-app.use(cors());
+const port = process.env.SERVERPORT || 3000;
+
+// Middleware
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'https://ferncots.com'],
+  credentials: true
+}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Routes
-// app.use("/api/auth", authRoutes);
 
-// Connect to MongoDB
-const MONGO_URI = process.env.DATABASE_URL || "your-mongodb-uri-here";
-mongoose.connect(MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error(err));
+app.use('/api/auth', authRoutes);
 
-// Export Firebase function
-export const api = functions.https.onRequest(app);
+
+
+// Default route
+app.get('/', (req, res) => {
+  res.send('Server is running');
+});
+
+app.use(
+  (
+    err: CustomError,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(err.stack);
+    res.status(err.status || 500).json({
+      message: err.message || 'Internal Server Error',
+      // If isEmailVerified is defined, return its value; otherwise, assume true.
+      verified: err.isEmailVerified !== undefined ? err.isEmailVerified : true,
+    });
+  }
+);
+
+app.all("*", async (req, res) => {
+  try {
+    res.status(404).json({ message: "Route not found", status: 404 });
+  } catch (error: any) {
+    throw new CustomError(error.message, 500); 
+  }
+})
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+  connectDB(); // Connect to the database
+});
+
+exports.app = functions.https.onRequest(app);

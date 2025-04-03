@@ -62,13 +62,13 @@ const UserSchema = new Schema<UserDocument>({
 },
 {
     timestamps: true,
-    toJSON: { virtuals: true }, // Ensure virtuals are included in JSON output
+    // toJSON: { virtuals: true }, // Ensure virtuals are included in JSON output
     toObject: { virtuals: true }, // Ensure virtuals are included in object output
 }
 );
 
 // Virtual property for fullName
-UserSchema.virtual('fullName').get(function (this: UserDocument) {
+UserSchema.virtual('fullName').get(function (this: UserDocument) { 
     return `${this.firstName} ${this.lastName}`;
 });
 
