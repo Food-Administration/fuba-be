@@ -1,43 +1,50 @@
-const functions = require("firebase-functions");
+import * as functions from 'firebase-functions';
 import express from 'express';
-const dotenv = require("dotenv");
-const cors = require('cors');
+import dotenv from 'dotenv';
+import cors from 'cors';
+import os from 'os';
+
 import connectDB from '../config/dbConn';
 import authRoutes from '../features/auth/auth.routes';
 import CustomError from '../utils/customError';
-import os from 'os';
 
+// Load env variables
 dotenv.config();
 
+// Log temp directory
 const tempDir = os.tmpdir();
 console.log(`Temporary directory: ${tempDir}`);
 
 const app = express();
 
-connectDB(); // ✅ Always connect DB before exporting or listening
+// Connect to MongoDB
+connectDB();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'https://ferncots.com'],
-  credentials: true
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'https://ferncots.com',
+  ],
+  credentials: true,
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Routes
+app.use('/api/auth', authRoutes); 
 
 
-app.use('/api/auth', authRoutes);
-
+// Logger
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// Default route
-// app.get('/', (req, res) => {
-//   res.send('Server is running');
-// });
-
+// Error handler
 app.use((err: CustomError, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
@@ -46,21 +53,10 @@ app.use((err: CustomError, req: express.Request, res: express.Response, next: ex
   });
 });
 
-app.all("*", async (req, res) => {
-  try {
-    res.status(404).json({ message: "Route not found", status: 404 });
-  } catch (error: any) {
-    throw new CustomError(error.message, 500); 
-  }
+// 404 handler
+app.all('*', (req, res) => {
+  res.status(404).json({ message: 'Route not found', status: 404 });
 });
 
-// 👇 Only listen if running locally
-if (process.env.NODE_ENV !== 'production') {
-  const port = process.env.SERVERPORT || 3000;
-  app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
-  });
-}
-
-// 👇 Always export for Firebase
-exports.app = functions.https.onRequest(app);
+// Export Firebase Function
+export const api = functions.https.onRequest(app);
