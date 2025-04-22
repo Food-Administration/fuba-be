@@ -1,15 +1,16 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import * as functions from 'firebase-functions';
 import express from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import os from 'os';
 
-import connectDB from '../config/dbConn';
-import authRoutes from '../features/auth/auth.routes';
-import CustomError from '../utils/customError';
+import connectDB from './config/dbConn';
+import authRoutes from './features/auth/auth.routes';
+import CustomError from './utils/customError';
 
 // Load env variables
-dotenv.config();
+// dotenv.config();
 
 // Log temp directory
 const tempDir = os.tmpdir();
@@ -54,9 +55,13 @@ app.use((err: CustomError, req: express.Request, res: express.Response, next: ex
 });
 
 // 404 handler
-app.all('*', (req, res) => {
+app.all('/{*any}', (req, res) => {
   res.status(404).json({ message: 'Route not found', status: 404 });
 });
+
+app.listen(3000, () => {
+  console.log(`Server is running on port 3000`);
+})
 
 // Export Firebase Function
 export const api = functions.https.onRequest(app);
