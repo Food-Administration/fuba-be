@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333333;
+        }
+        p {
+            color: #555555;
+            line-height: 1.6;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Our Platform!</h1>
+        <p>Hi {{username}},</p>
+        <p>We're excited to have you on board. Thank you for joining our platform. Here are a few things you can do to get started:</p>
+        <ul>
+            <li>Complete your profile</li>
+            <li>Explore our features</li>
+            <li>Reach out to our support team if you need help</li>
+        </ul>
+        <p>If you have any questions, feel free to <a href="mailto:support@example.com">contact us</a>.</p>
+        <p>Best regards,<br>The Team</p>
+        <a href="{{actionUrl}}" class="button">Get Started</a>
+    </div>
+</body>
+</html>

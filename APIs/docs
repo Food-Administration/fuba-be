@@ -1,0 +1,10 @@
+To run the script for admin setup:
+//npx ts-node -r tsconfig-paths/register src/scripts/setup.ts
+
+npx ts-node -r tsconfig-paths/register scripts/setup.ts 
+
+npx ts-node -r tsconfig-paths/register src/scripts/verifyFirebaseToken.ts
+npx ts-node -r tsconfig-paths/register src/scripts/generateFirebaseToken.ts
+
+
+tsc src/index.ts  - to compile 

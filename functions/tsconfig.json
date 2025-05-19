@@ -1,16 +1,30 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
-    "esModuleInterop": true,
-    "moduleResolution": "NodeNext",
+    "module": "commonjs",
+    "outDir": "./lib", // Outputs the compiled files to the 'lib' folder
+    "rootDir": "./",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "outDir": "lib",
-    "sourceMap": true,
     "strict": true,
-    "target": "es2017",
-    "typeRoots": ["node_modules/@types", "src/types"],  
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "node",
+    "target": "ES2021",
+    "sourceMap": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
   },
   "compileOnSave": true,
-  "include": ["**/*.ts"], 
+  "include": [
+    "./**/*.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+  
 }
