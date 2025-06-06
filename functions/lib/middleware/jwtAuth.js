@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const user_model_1 = __importDefault(require("../models/user.model"));
+const user_model_1 = __importDefault(require("../features/user/user.model"));
 const customError_1 = __importDefault(require("../utils/customError"));
 const jwtAuth = async (req, res, next) => {
     const authHeader = req.headers.authorization;

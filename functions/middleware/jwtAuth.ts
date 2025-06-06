@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.model';
+import User from '../features/user/user.model';
 import CustomError from '../utils/customError';
-import { UserDocument } from '../models/user.model';
+import { UserDocument } from '../features/user/user.model';
 
 const jwtAuth = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;

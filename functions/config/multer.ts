@@ -1,10 +1,7 @@
 import multer from 'multer';
 import { Request } from 'express';
 
-// Use memory storage to keep the file in memory
 const storage = multer.memoryStorage();
-// console.log('Storage:', storage);
-// const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedTypes = [
     'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
