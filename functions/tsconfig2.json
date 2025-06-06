@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "outDir": "lib", // Outputs the compiled files to the 'lib' folder
+    "outDir": "lib",
     "rootDir": "./",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
@@ -26,8 +26,8 @@
     "@routes/*": ["functions/routes/*"],
     "@utils/*": ["functions/utils/*"],
     "@types/*": ["functions/types/*"],
-    "@middleware/*": ["functions/middleware/*"],
-  },  
+    "@middleware/*": ["functions/middleware/*"]
+  }
   },  
   "compileOnSave": true,
   "include": ["**/*.ts"],
