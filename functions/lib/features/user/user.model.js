@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Role = void 0;
 const mongoose_1 = require("mongoose");
 var Role;
 (function (Role) {
     Role["Consumer"] = "consumer";
     Role["Vendor"] = "vendor";
     Role["Admin"] = "admin";
-})(Role || (Role = {}));
+})(Role || (exports.Role = Role = {}));
 const UserSchema = new mongoose_1.Schema({
     _id: { type: mongoose_1.Schema.Types.ObjectId, auto: true },
     email: { type: String, required: true, unique: true },

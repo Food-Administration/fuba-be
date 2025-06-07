@@ -10,8 +10,8 @@ class AuthController {
 }
 _a = AuthController;
 AuthController.signup = (0, asyncHandler_1.default)(async (req, res) => {
-    const { first_name, last_name, email, password } = req.body;
-    const user = await auth_service_1.default.signup(first_name, last_name, email, password);
+    const { first_name, last_name, email, password, role } = req.body;
+    const user = await auth_service_1.default.signup(first_name, last_name, email, password, role);
     res.status(201).json({
         message: 'Verification code sent to your email',
         success: true,

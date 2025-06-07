@@ -18,9 +18,10 @@ class AuthService {
      * @param last_name - The last name of the user.
      * @param email - The email address of the user.
      * @param password - The password for the user account.
+     * @param role - The role for the user account.
      * @returns A promise that resolves to the created UserDocument.
      */
-    static async signup(first_name, last_name, email, password) {
+    static async signup(first_name, last_name, email, password, role) {
         const existingUser = await user_model_1.default.findOne({ email });
         if (existingUser) {
             throw new customError_1.default('User already exists', 400);
@@ -33,6 +34,7 @@ class AuthService {
             first_name,
             last_name,
             email,
+            role,
             password: hashedPassword,
         });
         await user.save();

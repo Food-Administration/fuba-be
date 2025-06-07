@@ -45,7 +45,7 @@ router.post('/google', auth_controller_1.default.googleSignIn);
 router.post('/google-login', auth_controller_1.default.googleLogin);
 router.post('/request-otp', auth_controller_1.default.requestOTP);
 router.post('/verify-otp', auth_controller_1.default.verifyOTP);
-router.post('/new-password', auth_controller_1.default.newPassword);
+router.post('/reset-password', auth_controller_1.default.newPassword);
 router.post('/change-password', auth_controller_1.default.changePassword);
 router.post('/resend-verification-email', auth_controller_1.default.resendVerificationEmail);
 exports.default = router;

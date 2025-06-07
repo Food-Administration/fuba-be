@@ -24,8 +24,8 @@ import {
 class AuthController {
   static signup = asyncHandler(
     async (req: Request<{}, {}, SignupRequest>, res: Response<SignupResponse>) => {
-      const { first_name, last_name, email, password } = req.body;
-      const user = await AuthService.signup(first_name, last_name, email, password);
+      const { first_name, last_name, email, password, role } = req.body;
+      const user = await AuthService.signup(first_name, last_name, email, password, role);
 
       res.status(201).json({
         message: 'Verification code sent to your email',

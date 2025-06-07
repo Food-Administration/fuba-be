@@ -14,13 +14,15 @@ class AuthService {
    * @param last_name - The last name of the user.
    * @param email - The email address of the user.
    * @param password - The password for the user account.
+   * @param role - The role for the user account.
    * @returns A promise that resolves to the created UserDocument.
    */
   static async signup(
     first_name: string,
     last_name: string,
     email: string,
-    password: string
+    password: string,
+    role: String
   ): Promise<UserDocument> {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -36,6 +38,7 @@ class AuthService {
       first_name,
       last_name,
       email,
+      role,
       password: hashedPassword,
     });
     await user.save();

@@ -1,8 +1,11 @@
+import { Role } from "../user/user.model";
+
 export interface SignupRequest {
   first_name: string;
   last_name: string;
   email: string;
   password: string;
+  role: Role;
 }
 
 export  interface LoginRequest {
