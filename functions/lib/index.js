@@ -10,8 +10,10 @@ const cors = require('cors');
 const dbConn_1 = __importDefault(require("./config/dbConn"));
 const auth_route_1 = __importDefault(require("./features/auth/auth.route"));
 const user_route_1 = __importDefault(require("./features/user/user.route"));
-const property_route_1 = __importDefault(require("./features/property/property.route"));
-const blog_route_1 = __importDefault(require("./features/blog/blog.route"));
+const food_item_route_1 = __importDefault(require("./features/food_item/food_item.route"));
+const order_route_1 = __importDefault(require("./features/order/order.route"));
+const food_prep_route_1 = __importDefault(require("./features/food_prep/food_prep.route"));
+const cart_route_1 = __importDefault(require("./features/cart/cart.route"));
 const customError_1 = __importDefault(require("./utils/customError"));
 const express_session_1 = __importDefault(require("express-session"));
 dotenv.config();
@@ -40,8 +42,10 @@ app.use((req, res, next) => {
 });
 app.use('/api/auth', auth_route_1.default);
 app.use('/api/user', user_route_1.default);
-app.use('/api/property', property_route_1.default);
-app.use('/api/blog', blog_route_1.default);
+app.use('/api/food-item', food_item_route_1.default);
+app.use('/api/order', order_route_1.default);
+app.use('/api/food-prep', food_prep_route_1.default);
+app.use('/api/cart', cart_route_1.default);
 app.get('/', (req, res) => {
     res.send('Server is running');
 });

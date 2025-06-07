@@ -1,5 +1,11 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
+enum Role {
+    Consumer = 'consumer',
+    Vendor = 'vendor',
+    Admin = 'admin'
+}
+
 export interface CreateUserDto {
     first_name: string;
     last_name: string;
@@ -13,6 +19,7 @@ export interface UserDocument extends Document {
     password: string;
     username?: string;
     phone_number: string;
+    role: Role;
     first_name: string;
     last_name: string;
     full_name: string;
@@ -25,6 +32,8 @@ export interface UserDocument extends Document {
     reset_password_token?: string;
     reset_password_expires?: Date;
     settings: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const UserSchema = new Schema<UserDocument>({
@@ -33,6 +42,7 @@ const UserSchema = new Schema<UserDocument>({
     password: { type: String },
     username: { type: String },
     phone_number: { type: String },
+    role: { type: String, enum: Object.values(Role), required: true },
     first_name: { type: String },
     last_name: { type: String },
     profile_picture: { type: String },
@@ -44,6 +54,8 @@ const UserSchema = new Schema<UserDocument>({
     reset_password_token: { type: String },
     reset_password_expires: { type: Date },
     settings: { type: String, default: null },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
 },
 {
     timestamps: true,

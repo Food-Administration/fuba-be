@@ -5,8 +5,10 @@ const cors = require('cors');
 import connectDB from './config/dbConn';
 import authRoutes from './features/auth/auth.route';
 import userRoutes from './features/user/user.route';
-import propertyRoutes from './features/property/property.route';
-import blogRoutes from './features/blog/blog.route';
+import foodItemRoutes from './features/food_item/food_item.route';
+import orderRoutes from './features/order/order.route';
+import foodPrepRoutes from './features/food_prep/food_prep.route';
+import cartRoutes from './features/cart/cart.route';
 import CustomError from './utils/customError';
 import session from 'express-session';
 
@@ -43,8 +45,10 @@ app.use((req, res, next) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/property', propertyRoutes);
-app.use('/api/blog', blogRoutes);
+app.use('/api/food-item', foodItemRoutes);
+app.use('/api/order', orderRoutes);
+app.use('/api/food-prep', foodPrepRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.get('/', (req, res) => {
   res.send('Server is running');

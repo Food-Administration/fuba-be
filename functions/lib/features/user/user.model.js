@@ -1,12 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
+var Role;
+(function (Role) {
+    Role["Consumer"] = "consumer";
+    Role["Vendor"] = "vendor";
+    Role["Admin"] = "admin";
+})(Role || (Role = {}));
 const UserSchema = new mongoose_1.Schema({
     _id: { type: mongoose_1.Schema.Types.ObjectId, auto: true },
     email: { type: String, required: true, unique: true },
     password: { type: String },
     username: { type: String },
     phone_number: { type: String },
+    role: { type: String, enum: Object.values(Role), required: true },
     first_name: { type: String },
     last_name: { type: String },
     profile_picture: { type: String },
@@ -18,6 +25,8 @@ const UserSchema = new mongoose_1.Schema({
     reset_password_token: { type: String },
     reset_password_expires: { type: Date },
     settings: { type: String, default: null },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
