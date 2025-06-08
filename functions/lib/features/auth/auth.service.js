@@ -24,11 +24,24 @@ class AuthService {
     static async signup(first_name, last_name, email, password, role) {
         const existingUser = await user_model_1.default.findOne({ email });
         if (existingUser) {
+            if (!existingUser.verified) {
+                throw new customError_1.default('User exists but is not verified. Please verify your email before signing up.', 400);
+            }
             throw new customError_1.default('User already exists', 400);
         }
         // Hash the password
         const saltRounds = 10;
         const hashedPassword = await bcrypt_1.default.hash(password, saltRounds);
+        // Generate OTP for email verification
+        const otp = speakeasy_1.default.totp({
+            secret: speakeasy_1.default.generateSecret().base32,
+            digits: 4,
+        });
+        // const otp_expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        // If role is admin, do not sign up the user
+        if (role.toLowerCase() === 'admin') {
+            throw new customError_1.default('Admin users cannot sign up through this method.', 403);
+        }
         // Create the user
         const user = new user_model_1.default({
             first_name,
@@ -36,8 +49,12 @@ class AuthService {
             email,
             role,
             password: hashedPassword,
+            // otp_expires: otp_expires,
+            verified: false,
         });
         await user.save();
+        // Send OTP via email
+        await email_service_1.default.sendVerificationEmail(email, otp);
         return user;
     }
     /**
@@ -51,6 +68,9 @@ class AuthService {
         if (!user) {
             throw new customError_1.default('User Not Found!', 401);
         }
+        if (!user.verified) {
+            throw new customError_1.default('User is not verified. Please verify your email before logging in.', 401);
+        }
         const isMatch = await bcrypt_1.default.compare(password.trim(), user.password);
         if (!isMatch) {
             throw new customError_1.default('Wrong Password', 401);
@@ -62,10 +82,15 @@ class AuthService {
         // Prepare the response
         const userId = user._id.toString();
         const full_name = user.full_name;
+        // Remove password and otp from user object before returning
+        const userObj = user.toObject();
+        delete userObj.password;
+        delete userObj.otp;
         return {
             token,
             userId,
             full_name,
+            user: userObj
         };
     }
     /**
@@ -190,11 +215,18 @@ class AuthService {
             throw new customError_1.default('OTP has expired', 400);
         }
         user.verified = true;
-        user.otp = undefined; // Clear OTP after verification
-        user.otp_expires = undefined; // Clear OTP expiration after verification
+        // Do not clear OTP or otp_expires here
         await user.save();
+        // Generate JWT token
+        const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY, {
+            expiresIn: '360h',
+        });
+        const userObj = user.toObject();
+        delete userObj.password;
+        delete userObj.otp;
         // await EmailService.sendVerificationSuccessEmail(email);
         console.log('OTP verified successfully');
+        return { token, user: userObj };
     }
     /**
      * Changes the user's password.
@@ -202,7 +234,7 @@ class AuthService {
      * @param new_password - The new password to set.
      * @param confirm_password - Confirmation of the new password.
      */
-    static async newPassword(email, new_password, confirm_password) {
+    static async newPassword(email, new_password, confirm_password, otp) {
         if (new_password !== confirm_password) {
             throw new customError_1.default('Passwords do not match', 400);
         }
@@ -210,11 +242,26 @@ class AuthService {
         if (!user) {
             throw new customError_1.default('User not found', 404);
         }
+        if (!user.otp || user.otp !== otp) {
+            throw new customError_1.default('Invalid OTP', 400);
+        }
+        if (user.otp_expires && user.otp_expires < new Date()) {
+            throw new customError_1.default('OTP has expired', 400);
+        }
         const saltRounds = 10;
         const hashedPassword = await bcrypt_1.default.hash(new_password, saltRounds);
         user.password = hashedPassword;
+        user.otp = undefined;
+        user.otp_expires = undefined;
         await user.save();
-        return { message: 'Your password has been changed successfully.' };
+        // Generate JWT token
+        const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY, {
+            expiresIn: '360h',
+        });
+        const userObj = user.toObject();
+        delete userObj.password;
+        delete userObj.otp;
+        return { message: 'Your password has been changed successfully.', token, user: userObj };
     }
     /**
      * Changes the user's password after verifying the current password.

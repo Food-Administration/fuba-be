@@ -11,18 +11,31 @@ class AuthController {
 _a = AuthController;
 AuthController.signup = (0, asyncHandler_1.default)(async (req, res) => {
     const { first_name, last_name, email, password, role } = req.body;
-    const user = await auth_service_1.default.signup(first_name, last_name, email, password, role);
-    res.status(201).json({
-        message: 'Verification code sent to your email',
-        success: true,
-        userId: user._id.toString(),
-        email: user.email,
-    });
+    try {
+        const user = await auth_service_1.default.signup(first_name, last_name, email, password, role);
+        const isVerified = user.verified || user.verified; // Adjust property name as per your user model
+        res.status(isVerified ? 200 : 201).json({
+            message: isVerified
+                ? 'User already verified'
+                : 'Verification code sent to your email',
+            success: true,
+            email: user.email,
+            // otp: user.otp,
+            // otpExpires: user.otp_expires
+        });
+    }
+    catch (error) {
+        // Handle known errors from the service
+        res.status(error.statusCode || 400).json({
+            message: error.message || 'Signup failed',
+            success: false
+        });
+    }
 });
 AuthController.login = (0, asyncHandler_1.default)(async (req, res) => {
     const { email, password } = req.body;
-    const { token, userId } = await auth_service_1.default.login(email, password);
-    res.status(200).json({ token, userId });
+    const { token, userId, user } = await auth_service_1.default.login(email, password);
+    res.status(200).json({ token, userId, user });
 });
 AuthController.googleSignIn = (0, asyncHandler_1.default)(async (req, res) => {
     const { idToken } = req.body;
@@ -41,13 +54,13 @@ AuthController.requestOTP = (0, asyncHandler_1.default)(async (req, res) => {
 });
 AuthController.verifyOTP = (0, asyncHandler_1.default)(async (req, res) => {
     const { email, otp } = req.body;
-    await auth_service_1.default.verifyOTP(email, otp);
-    res.status(200).json({ message: 'OTP verified successfully' });
+    const { token, user } = await auth_service_1.default.verifyOTP(email, otp);
+    res.status(200).json({ message: 'OTP verified successfully', success: true, token, user });
 });
 AuthController.newPassword = (0, asyncHandler_1.default)(async (req, res) => {
-    const { email, new_password, confirm_password } = req.body;
-    const result = await auth_service_1.default.newPassword(email, new_password, confirm_password);
-    res.status(200).json(result);
+    const { email, new_password, confirm_password, otp } = req.body;
+    const { token, user } = await auth_service_1.default.newPassword(email, new_password, confirm_password, otp);
+    res.status(200).json({ message: 'New Password Changed Successfully', success: true, token, user });
 });
 AuthController.changePassword = (0, asyncHandler_1.default)(async (req, res) => {
     const user = req.user;
