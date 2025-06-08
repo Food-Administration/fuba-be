@@ -105,7 +105,7 @@ class AuthService {
     const full_name = user.full_name;
 
     // Remove password and otp from user object before returning
-    const userObj = user.toObject() as any;
+    const userObj = user.toObject() as any; 
     delete userObj.password;
     delete userObj.otp;
 
