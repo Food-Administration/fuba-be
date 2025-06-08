@@ -25,23 +25,36 @@ class AuthController {
   static signup = asyncHandler(
     async (req: Request<{}, {}, SignupRequest>, res: Response<SignupResponse>) => {
       const { first_name, last_name, email, password, role } = req.body;
-      const user = await AuthService.signup(first_name, last_name, email, password, role);
+      try {
+        const user = await AuthService.signup(first_name, last_name, email, password, role);
 
-      res.status(201).json({
-        message: 'Verification code sent to your email',
-        success: true,
-        userId: user._id.toString(),
-        email: user.email,
-      });
+        const isVerified = user.verified || user.verified; // Adjust property name as per your user model
+
+        res.status(isVerified ? 200 : 201).json({
+          message: isVerified
+            ? 'User already verified'
+            : 'Verification code sent to your email',
+          success: true,
+          email: user.email,
+          // otp: user.otp,
+          // otpExpires: user.otp_expires
+        });
+      } catch (error: any) {
+        // Handle known errors from the service
+        res.status(error.statusCode || 400).json({
+          message: error.message || 'Signup failed',
+          success: false
+        });
+      }
     }
   );
 
   static login = asyncHandler(
     async (req: Request<{}, {}, LoginRequest>, res: Response<LoginResponse>) => {
       const { email, password } = req.body;
-      const { token, userId } = await AuthService.login(email, password);
+      const { token, userId, user } = await AuthService.login(email, password);
 
-      res.status(200).json({ token, userId });
+      res.status(200).json({ token, userId, user });
     }
   );
 
@@ -75,18 +88,18 @@ class AuthController {
   static verifyOTP = asyncHandler(
     async (req: Request<{}, {}, VerifyOTPRequest>, res: Response<MessageResponse>) => {
       const { email, otp } = req.body;
-      await AuthService.verifyOTP(email, otp);
+      const {token, user} = await AuthService.verifyOTP(email, otp);
 
-      res.status(200).json({ message: 'OTP verified successfully' });
+      res.status(200).json({ message: 'OTP verified successfully', success: true, token, user });
     }
   );
 
   static newPassword = asyncHandler(
     async (req: Request<{}, {}, NewPasswordRequest>, res: Response) => {
-      const { email, new_password, confirm_password } = req.body;
-      const result = await AuthService.newPassword(email, new_password, confirm_password);
+      const { email, new_password, confirm_password, otp } = req.body;
+      const {token, user} = await AuthService.newPassword(email, new_password, confirm_password, otp);
 
-      res.status(200).json(result);
+      res.status(200).json({ message: 'New Password Changed Successfully', success: true, token, user });
     }
   );
 

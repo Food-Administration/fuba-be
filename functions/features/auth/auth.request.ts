@@ -30,6 +30,7 @@ export interface NewPasswordRequest {
   email: string;
   new_password: string;
   confirm_password: string;
+  otp: string;
 }
 
 export interface ChangePasswordRequest {

@@ -1,13 +1,18 @@
+import { UserDocument } from "../user/user.model";
+
 export interface SignupResponse {
   message: string;
   success: boolean;
-  userId: string;
-  email: string;
+  userId?: string;
+  email?: string;
+  otp?: string;
+  otpExpires?: Date;
 }
 
 export interface LoginResponse {
   token: string;
   userId: string;
+  user: Omit<UserDocument, 'password' | 'otp'>;
 }
 
 export interface GoogleAuthResponse {
@@ -23,4 +28,6 @@ export interface OTPResponse {
 export interface MessageResponse {
   message: string;
   success?: boolean;
+  token?: string;
+  user?: Omit<UserDocument, 'password' | 'otp'>;
 }
