@@ -1,5 +1,5 @@
-import FoodItem, { IFoodItem } from './food_item.model'; // Adjust path if needed
-import { Types } from 'mongoose';
+import FoodItem, { IFoodItem } from "./food_item.model"; // Adjust path if needed
+import { Types } from "mongoose";
 
 export class FoodItemService {
   /**
@@ -13,31 +13,30 @@ export class FoodItemService {
   }
 
   /**
-   * Retrieves food items based on the provided filter with pagination.
+   * Retrieves food items based on the provided filter and optional search, with pagination.
    * @param filter - Mongoose filter query.
-   * @param options - Pagination options: page (1-based) and limit.
+   * @param options - Pagination options: page (1-based), limit, and search string.
    * @returns An object containing food items, total count, page and limit.
    */
   async get(
-    filter: import('mongoose').FilterQuery<IFoodItem> = {},
-    options: { page?: number; limit?: number } = {}
-  ): Promise<{
-    foodItems: IFoodItem[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
-    const page = Math.max(1, options.page || 1);
-    const limit = Math.max(1, options.limit || 10);
-    const skip = (page - 1) * limit;
+  filter: import("mongoose").FilterQuery<IFoodItem> = {},
+  options: { offset?: number; limit?: number } = {}
+): Promise<{
+  foodItems: IFoodItem[];
+  total: number;
+  offset: number;
+  limit: number;
+}> {
+  const offset = Math.max(0, options.offset || 0);
+  const limit = Math.max(1, options.limit || 10);
 
-    const [foodItems, total] = await Promise.all([
-      FoodItem.find(filter).skip(skip).limit(limit),
-      FoodItem.countDocuments(filter)
-    ]);
+  const [foodItems, total] = await Promise.all([
+    FoodItem.find(filter).skip(offset).limit(limit),
+    FoodItem.countDocuments(filter),
+  ]);
 
-    return { foodItems, total, page, limit };
-  }
+  return { foodItems, total, offset, limit };
+}
 
   /**
    * Retrieves a food item by its ID.
@@ -55,7 +54,10 @@ export class FoodItemService {
    * @param data - Partial data to update the food item with.
    * @returns The updated food item if found, otherwise null.
    */
-  async update(id: string, data: Partial<IFoodItem>): Promise<IFoodItem | null> {
+  async update(
+    id: string,
+    data: Partial<IFoodItem>
+  ): Promise<IFoodItem | null> {
     if (!Types.ObjectId.isValid(id)) return null;
     return await FoodItem.findByIdAndUpdate(id, data, { new: true });
   }
@@ -78,15 +80,15 @@ export class FoodItemService {
    */
   async getByVendor(
     vendorId: string,
-    options: { page?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {}
   ): Promise<{
     foodItems: IFoodItem[];
     total: number;
-    page: number;
+    offset: number;
     limit: number;
   }> {
     if (!Types.ObjectId.isValid(vendorId)) {
-      return { foodItems: [], total: 0, page: 1, limit: options.limit || 10 };
+      return { foodItems: [], total: 0, offset: 1, limit: options.limit || 10 };
     }
     return this.get({ vendor: new Types.ObjectId(vendorId) }, options);
   }
