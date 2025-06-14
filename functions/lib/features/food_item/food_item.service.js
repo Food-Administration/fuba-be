@@ -17,20 +17,19 @@ class FoodItemService {
         return await foodItem.save();
     }
     /**
-     * Retrieves food items based on the provided filter with pagination.
+     * Retrieves food items based on the provided filter and optional search, with pagination.
      * @param filter - Mongoose filter query.
-     * @param options - Pagination options: page (1-based) and limit.
+     * @param options - Pagination options: page (1-based), limit, and search string.
      * @returns An object containing food items, total count, page and limit.
      */
     async get(filter = {}, options = {}) {
-        const page = Math.max(1, options.page || 1);
+        const offset = Math.max(0, options.offset || 0);
         const limit = Math.max(1, options.limit || 10);
-        const skip = (page - 1) * limit;
         const [foodItems, total] = await Promise.all([
-            food_item_model_1.default.find(filter).skip(skip).limit(limit),
-            food_item_model_1.default.countDocuments(filter)
+            food_item_model_1.default.find(filter).skip(offset).limit(limit),
+            food_item_model_1.default.countDocuments(filter),
         ]);
-        return { foodItems, total, page, limit };
+        return { foodItems, total, offset, limit };
     }
     /**
      * Retrieves a food item by its ID.
@@ -71,7 +70,7 @@ class FoodItemService {
      */
     async getByVendor(vendorId, options = {}) {
         if (!mongoose_1.Types.ObjectId.isValid(vendorId)) {
-            return { foodItems: [], total: 0, page: 1, limit: options.limit || 10 };
+            return { foodItems: [], total: 0, offset: 1, limit: options.limit || 10 };
         }
         return this.get({ vendor: new mongoose_1.Types.ObjectId(vendorId) }, options);
     }
