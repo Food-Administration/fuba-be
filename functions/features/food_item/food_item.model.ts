@@ -1,22 +1,30 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IFoodItem extends Document {
-    name: string;
-    description: String;
-    price: number;
-    vendor: Schema.Types.ObjectId;
-    image?: string;
-    category: string;
-    available: Boolean;
-    createdAt: Date;
-    updatedAt: Date;
+  name: string;
+  description: string;
+  price: {
+    premium: number;
+    executive: number;
+    regular: number;
+  };
+  vendor: Schema.Types.ObjectId;
+  image?: string;
+  category: string;
+  available: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const FoodItemSchema = new Schema<IFoodItem>({
   name: { type: String, required: true },
   description: { type: String, required: true },
-  price: { type: Number, required: true },
-  vendor: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  price: {
+    premium: { type: Number, required: true },
+    executive: { type: Number, required: true },
+    regular: { type: Number, required: true },
+  },
+  vendor: { type: Schema.Types.ObjectId, ref: "User", required: true },
   image: { type: String },
   category: { type: String },
   available: { type: Boolean, default: true },
@@ -24,4 +32,4 @@ const FoodItemSchema = new Schema<IFoodItem>({
   updatedAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model<IFoodItem>('FoodItem', FoodItemSchema);
+export default mongoose.model<IFoodItem>("FoodItem", FoodItemSchema);

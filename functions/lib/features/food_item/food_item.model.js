@@ -37,13 +37,17 @@ const mongoose_1 = __importStar(require("mongoose"));
 const FoodItemSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     description: { type: String, required: true },
-    price: { type: Number, required: true },
-    vendor: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
+    price: {
+        premium: { type: Number, required: true },
+        executive: { type: Number, required: true },
+        regular: { type: Number, required: true },
+    },
+    vendor: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
     image: { type: String },
     category: { type: String },
     available: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
-exports.default = mongoose_1.default.model('FoodItem', FoodItemSchema);
+exports.default = mongoose_1.default.model("FoodItem", FoodItemSchema);
 //# sourceMappingURL=food_item.model.js.map
