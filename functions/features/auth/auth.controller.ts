@@ -24,9 +24,9 @@ import {
 class AuthController {
   static signup = asyncHandler(
     async (req: Request<{}, {}, SignupRequest>, res: Response<SignupResponse>) => {
-      const { first_name, last_name, email, password, role } = req.body;
+      const { first_name, last_name, phone_number, email, password, role } = req.body;
       try {
-        const user = await AuthService.signup(first_name, last_name, email, password, role);
+        const user = await AuthService.signup(first_name, last_name, email, phone_number, password, role);
 
         const isVerified = user.verified || user.verified; // Adjust property name as per your user model
 

@@ -3,6 +3,7 @@
   "scripts": {
     "build": "set NODE_OPTIONS='--max-old-space-size=4096' tsc",
     "build:watch": "tsc --watch",
+    "dev": "nodemon ./index.ts",
     "start": "node -r tsconfig-paths/register lib/index.js",
     "prepare": "npm run build"
   },
