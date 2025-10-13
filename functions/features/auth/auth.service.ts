@@ -1,5 +1,5 @@
 import speakeasy from 'speakeasy';
-import User, { UserDocument } from '../user/user.model';
+import User, { Role, UserDocument } from '../user/user.model';
 import EmailService from '../mail/email.service';
 import jwt from 'jsonwebtoken';
 import CustomError from '../../utils/customError';
@@ -9,73 +9,227 @@ import crypto from 'crypto';
 
 class AuthService {
   /**
-   * Registers a new user with the provided details.
-   * @param first_name - The first name of the user.
-   * @param last_name - The last name of the user.
-   * @param email - The email address of the user.
-   * @param password - The password for the user account.
-   * @param role - The role for the user account.
-   * @returns A promise that resolves to the created UserDocument.
+   * Initiates email verification for new users
    */
-  static async signup(
+  static async initiateEmailVerification(email: string): Promise<{ message: string }> {
+    // Check if user already exists and is verified
+    const existingUser = await User.findOne({ email });
+    if (existingUser && existingUser.verified) {
+      throw new CustomError('User already exists with this email', 400);
+    }
+
+    // Generate OTP
+    const otp_secret = speakeasy.generateSecret().base32;
+    const otp = speakeasy.totp({
+      secret: otp_secret,
+      digits: 4,
+    });
+
+    const otp_expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    if (existingUser) {
+      // Update existing unverified user with new OTP
+      existingUser.otp = otp;
+      existingUser.otp_secret = otp_secret;
+      existingUser.otp_expires = otp_expires;
+      existingUser.verified = false;
+      await existingUser.save();
+    } else {
+      // Create a temporary user record for verification
+      const tempUser = new User({
+        email,
+        otp,
+        otp_secret,
+        otp_expires,
+        verified: false,
+        role: Role.Consumer, // Default role, can be changed during registration
+        // Set temporary placeholder values
+        first_name: 'Pending',
+        last_name: 'Verification',
+        phone_number: 'pending',
+        password: await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10), // Temporary password
+      });
+      await tempUser.save();
+    }
+
+    // Send OTP via email
+    await EmailService.sendVerificationEmail(email, otp);
+
+    return {
+      message: 'Verification code sent to your email. Please verify to continue registration.'
+    };
+  }
+
+  /**
+   * Verifies email OTP
+   */
+  static async verifyEmail(
+    email: string, 
+    otp: string
+  ): Promise<{ verification_token: string; message: string }> {
+    // Find user by email
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      throw new CustomError('No verification session found. Please start verification again.', 400);
+    }
+
+    if (user.verified) {
+      throw new CustomError('Email is already verified', 400);
+    }
+
+    if (!user.otp || !user.otp_expires) {
+      throw new CustomError('No OTP found. Please request a new one.', 400);
+    }
+
+    if (user.otp_expires < new Date()) {
+      throw new CustomError('OTP has expired. Please request a new one.', 400);
+    }
+
+    if (user.otp !== otp) {
+      throw new CustomError('Invalid OTP', 400);
+    }
+
+    // Generate verification token (short-lived)
+    const verification_token = jwt.sign(
+      { 
+        email, 
+        verified: true,
+        purpose: 'email_verification',
+        userId: user._id.toString()
+      }, 
+      process.env.TOKEN_SECRET_KEY!, 
+      { expiresIn: '30m' } // 30 minutes to complete registration
+    );
+
+    return {
+      verification_token,
+      message: 'Email verified successfully. You can now complete your registration.'
+    };
+  }
+
+  /**
+   * Completes user registration after email verification
+   */
+  static async completeRegistration(
+    verification_token: string,
     first_name: string,
     last_name: string,
-    email: string,
     phone_number: string,
     password: string,
-    role: String
-  ): Promise<UserDocument> {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      if (!existingUser.verified) {
-        throw new CustomError('User exists but is not verified. Please verify your email before signing up.', 400);
-      }
-      throw new CustomError('User already exists', 400);
+    role: Role
+  ): Promise<{ user: UserDocument; token: string }> {
+    let decoded: any;
+    
+    try {
+      decoded = jwt.verify(verification_token, process.env.TOKEN_SECRET_KEY!);
+    } catch (error) {
+      throw new CustomError('Invalid or expired verification token', 400);
+    }
+
+    if (!decoded.verified || !decoded.email || decoded.purpose !== 'email_verification') {
+      throw new CustomError('Invalid verification token', 400);
+    }
+
+    const { email, userId } = decoded;
+
+    // Find and verify the user
+    const user = await User.findOne({ 
+      _id: userId,
+      email,
+      verified: false // Ensure user is not already verified
+    });
+
+    if (!user) {
+      throw new CustomError('User not found or already verified. Please start verification again.', 400);
+    }
+
+    if (!role) {
+      throw new CustomError('User role is required.', 400);
+    }
+
+    if (role === Role.Admin) {
+      throw new CustomError('Admin users cannot sign up through this method.', 403);
     }
 
     // Hash the password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Generate OTP for email verification
+    // Update user with actual registration data
+    user.first_name = first_name;
+    user.last_name = last_name;
+    user.phone_number = phone_number;
+    user.password = hashedPassword;
+    user.role = role;
+    user.verified = true;
+    user.otp = undefined;
+    user.otp_secret = undefined;
+    user.otp_expires = undefined;
+
+    await user.save();
+
+    // Generate auth token
+    const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {
+      expiresIn: '360h',
+    });
+
+    return { user, token };
+  }
+
+  /**
+   * Resend verification email
+   */
+  static async resendVerificationEmail(email: string): Promise<{ message: string }> {
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      throw new CustomError('No user found with this email. Please start verification first.', 404);
+    }
+
+    if (user.verified) {
+      throw new CustomError('Email is already verified', 400);
+    }
+
+    // Generate new OTP
+    const otp_secret = user.otp_secret || speakeasy.generateSecret().base32;
     const otp = speakeasy.totp({
-      secret: speakeasy.generateSecret().base32,
+      secret: otp_secret,
       digits: 4,
     });
-    // const otp_expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    if (!role) {
-  throw new CustomError('User role is required.', 400);
-}
+    const otp_expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-if (role.toLowerCase() === 'admin') {
-  throw new CustomError('Admin users cannot sign up through this method.', 403);
-}
-
-    // Create the user
-    const user = new User({
-      first_name,
-      last_name,
-      email,
-      phone_number,
-      role,
-      password: hashedPassword,
-      // otp_expires: otp_expires,
-      verified: false,
-    });
+    // Update user with new OTP
+    user.otp = otp;
+    user.otp_secret = otp_secret;
+    user.otp_expires = otp_expires;
     await user.save();
 
     // Send OTP via email
     await EmailService.sendVerificationEmail(email, otp);
 
-    return user;
+    return {
+      message: 'Verification code resent to your email.'
+    };
   }
 
   /**
+   * Clean up expired verification records (optional cron job)
+   */
+  static async cleanupExpiredVerifications(): Promise<{ deletedCount: number }> {
+    const result = await User.deleteMany({
+      verified: false,
+      otp_expires: { $lt: new Date() },
+      createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Older than 24 hours
+    });
+    
+    return { deletedCount: result.deletedCount || 0 };
+  }
+
+  // ... rest of your existing methods (login, googleSignIn, etc.) remain the same
+  /**
    * Logs in a user with the provided email and password.
-   * @param email - The email address of the user.
-   * @param password - The password for the user account.
-   * @returns A promise that resolves to an object containing the JWT token, user ID, and full name.
    */
   static async login(
     email: string,
@@ -376,37 +530,6 @@ if (role.toLowerCase() === 'admin') {
 
     user.password = hashedPassword;
     await user.save();
-  }
-
-  /**
-   * Resends the verification email to the user identified by the provided email.
-   * @param email - The email address of the user.
-   */
-  static async resendVerificationEmail(email: string): Promise<void> {
-    // Find the user
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new CustomError('User not found', 404);
-    }
-
-    // Generate a new verification code
-    const otp = speakeasy.totp({
-      secret: speakeasy.generateSecret().base32,
-      digits: 4,
-    });
-
-    // const otp = "12345";
-
-    // Set the expiration time (10 minutes from now)
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    // Update the user's verification code and expiration time
-    user.otp = otp;
-    user.otp_expires = otpExpires;
-    await user.save();
-
-    // Send the verification code via email using EmailService
-    await EmailService.sendVerificationEmail(email, otp);
   }
 }
 

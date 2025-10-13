@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { UserDocument } from '../user/user.model';
+import { Role, UserDocument } from '../user/user.model';
 import AuthService from './auth.service';
 import asyncHandler from '../../utils/asyncHandler';
 import {
-  SignupRequest,
+  // SignupRequest,
   LoginRequest,
   GoogleAuthRequest,
   OTPRequest,
@@ -14,38 +14,91 @@ import {
 } from './auth.request';
 
 import {
-  SignupResponse,
+  // SignupResponse,
   LoginResponse,
   GoogleAuthResponse,
   OTPResponse,
   MessageResponse
 } from './auth.response';
 
+interface InitiateVerificationRequest {
+  email: string;
+}
+
+interface VerifyEmailRequest {
+  email: string;
+  otp: string;
+}
+
+interface CompleteRegistrationRequest {
+  verification_token: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string;
+  password: string;
+  role: Role;
+}
+
 class AuthController {
-  static signup = asyncHandler(
-    async (req: Request<{}, {}, SignupRequest>, res: Response<SignupResponse>) => {
-      const { first_name, last_name, phone_number, email, password, role } = req.body;
-      try {
-        const user = await AuthService.signup(first_name, last_name, email, phone_number, password, role);
+  static initiateEmailVerification = asyncHandler(
+    async (req: Request<{}, {}, InitiateVerificationRequest>, res: Response) => {
+      const { email } = req.body;
+      const { message } = await AuthService.initiateEmailVerification(email);
 
-        const isVerified = user.verified || user.verified; // Adjust property name as per your user model
+      res.status(200).json({
+        message,
+        success: true
+      });
+    }
+  );
 
-        res.status(isVerified ? 200 : 201).json({
-          message: isVerified
-            ? 'User already verified'
-            : 'Verification code sent to your email',
-          success: true,
+  static verifyEmail = asyncHandler(
+    async (req: Request<{}, {}, VerifyEmailRequest>, res: Response) => {
+      const { email, otp } = req.body;
+      const { verification_token, message } = await AuthService.verifyEmail(email, otp);
+
+      res.status(200).json({
+        message,
+        success: true,
+        verification_token
+      });
+    }
+  );
+
+  static completeRegistration = asyncHandler(
+    async (req: Request<{}, {}, CompleteRegistrationRequest>, res: Response) => {
+      const {
+        verification_token,
+        first_name,
+        last_name,
+        phone_number,
+        password,
+        role
+      } = req.body;
+
+      const { user, token } = await AuthService.completeRegistration(
+        verification_token,
+        first_name,
+        last_name,
+        phone_number,
+        password,
+        role
+      );
+
+      res.status(201).json({
+        message: 'Registration completed successfully',
+        success: true,
+        token,
+        user: {
+          _id: user._id,
+          first_name: user.first_name,
+          last_name: user.last_name,
           email: user.email,
-          // otp: user.otp,
-          // otpExpires: user.otp_expires
-        });
-      } catch (error: any) {
-        // Handle known errors from the service
-        res.status(error.statusCode || 400).json({
-          message: error.message || 'Signup failed',
-          success: false
-        });
-      }
+          phone_number: user.phone_number,
+          role: user.role,
+          verified: user.verified
+        }
+      });
     }
   );
 

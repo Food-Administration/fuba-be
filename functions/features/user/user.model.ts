@@ -25,6 +25,7 @@ export interface UserDocument extends Document {
     full_name: string;
     otp_expires?: Date;
     otp?: string;
+    otp_secret?: string;
     verified: boolean;
     profile_picture: string;
     googleId: string | null;
@@ -51,6 +52,7 @@ const UserSchema = new Schema<UserDocument>({
     otp_expires: { type: Date },
     verified: { type: Boolean, default: false },
     otp: { type: String },
+    otp_secret: { type: String },
     reset_password_token: { type: String },
     reset_password_expires: { type: Date },
     settings: { type: String, default: null },
