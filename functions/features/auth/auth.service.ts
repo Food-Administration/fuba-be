@@ -44,10 +44,13 @@ class AuthService {
     });
     // const otp_expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // If role is admin, do not sign up the user
-    if (role.toLowerCase() === 'admin') {
-      throw new CustomError('Admin users cannot sign up through this method.', 403);
-    }
+    if (!role) {
+  throw new CustomError('User role is required.', 400);
+}
+
+if (role.toLowerCase() === 'admin') {
+  throw new CustomError('Admin users cannot sign up through this method.', 403);
+}
 
     // Create the user
     const user = new User({
