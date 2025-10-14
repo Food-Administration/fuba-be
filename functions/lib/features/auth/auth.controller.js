@@ -9,28 +9,40 @@ const asyncHandler_1 = __importDefault(require("../../utils/asyncHandler"));
 class AuthController {
 }
 _a = AuthController;
-AuthController.signup = (0, asyncHandler_1.default)(async (req, res) => {
-    const { first_name, last_name, email, password, role } = req.body;
-    try {
-        const user = await auth_service_1.default.signup(first_name, last_name, email, password, role);
-        const isVerified = user.verified || user.verified; // Adjust property name as per your user model
-        res.status(isVerified ? 200 : 201).json({
-            message: isVerified
-                ? 'User already verified'
-                : 'Verification code sent to your email',
-            success: true,
+AuthController.initiateEmailVerification = (0, asyncHandler_1.default)(async (req, res) => {
+    const { email } = req.body;
+    const { message } = await auth_service_1.default.initiateEmailVerification(email);
+    res.status(200).json({
+        message,
+        success: true
+    });
+});
+AuthController.verifyEmail = (0, asyncHandler_1.default)(async (req, res) => {
+    const { email, otp } = req.body;
+    const { verification_token, message } = await auth_service_1.default.verifyEmail(email, otp);
+    res.status(200).json({
+        message,
+        success: true,
+        verification_token
+    });
+});
+AuthController.completeRegistration = (0, asyncHandler_1.default)(async (req, res) => {
+    const { verification_token, first_name, last_name, phone_number, password, role } = req.body;
+    const { user, token } = await auth_service_1.default.completeRegistration(verification_token, first_name, last_name, phone_number, password, role);
+    res.status(201).json({
+        message: 'Registration completed successfully',
+        success: true,
+        token,
+        user: {
+            _id: user._id,
+            first_name: user.first_name,
+            last_name: user.last_name,
             email: user.email,
-            // otp: user.otp,
-            // otpExpires: user.otp_expires
-        });
-    }
-    catch (error) {
-        // Handle known errors from the service
-        res.status(error.statusCode || 400).json({
-            message: error.message || 'Signup failed',
-            success: false
-        });
-    }
+            phone_number: user.phone_number,
+            role: user.role,
+            verified: user.verified
+        }
+    });
 });
 AuthController.login = (0, asyncHandler_1.default)(async (req, res) => {
     const { email, password } = req.body;

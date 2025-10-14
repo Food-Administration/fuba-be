@@ -39,7 +39,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = __importStar(require("express"));
 const auth_controller_1 = __importDefault(require("./auth.controller"));
 const router = express.Router();
-router.post('/signup', auth_controller_1.default.signup);
+// New email verification flow
+router.post('/initiate-verification', auth_controller_1.default.initiateEmailVerification);
+router.post('/verify-email', auth_controller_1.default.verifyEmail);
+router.post('/register', auth_controller_1.default.completeRegistration);
+// Existing routes
 router.post('/login', auth_controller_1.default.login);
 router.post('/google', auth_controller_1.default.googleSignIn);
 router.post('/google-login', auth_controller_1.default.googleLogin);
