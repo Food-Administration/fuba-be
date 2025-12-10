@@ -9,6 +9,7 @@ import foodItemRoutes from './features/food_item/food_item.route';
 import orderRoutes from './features/order/order.route';
 import foodPrepRoutes from './features/food_prep/food_prep.route';
 import cartRoutes from './features/cart/cart.route';
+import restaurantRoutes from './features/restaurant/restaurant.route';
 import CustomError from './utils/customError';
 import session from 'express-session';
 
@@ -49,6 +50,7 @@ app.use('/api/food-item', foodItemRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/food-prep', foodPrepRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/restaurant', restaurantRoutes);
 
 app.get('/', (req, res) => {
   res.send('Server is running');

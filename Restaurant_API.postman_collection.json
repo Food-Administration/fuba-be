@@ -1,0 +1,439 @@
+{
+  "info": {
+    "name": "Restaurant API",
+    "description": "Postman collection for testing the Restaurant API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Restaurant",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"The Pizza Hub\",\n  \"image\": \"https://example.com/pizza-hub.jpg\",\n  \"street\": \"123 Main Street\",\n  \"state\": \"California\",\n  \"mode\": \"both\",\n  \"items\": [],\n  \"openTime\": \"09:00\",\n  \"closeTime\": \"23:00\",\n  \"ratings\": 4.5,\n  \"promo\": {\n    \"freeDelivery\": true,\n    \"discountPercentage\": 10\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All Restaurants",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant?offset=0&limit=10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant"
+          ],
+          "query": [
+            {
+              "key": "offset",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Search Restaurants by Name",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant?search=Pizza&offset=0&limit=10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant"
+          ],
+          "query": [
+            {
+              "key": "search",
+              "value": "Pizza"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Restaurant by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/{{restaurantId}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "{{restaurantId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Restaurants by Mode - Delivery",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/mode/delivery?offset=0&limit=10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "mode",
+            "delivery"
+          ],
+          "query": [
+            {
+              "key": "offset",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Restaurants by Mode - Pickup",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/mode/pickup?offset=0&limit=10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "mode",
+            "pickup"
+          ],
+          "query": [
+            {
+              "key": "offset",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Restaurants by Mode - Both",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/mode/both?offset=0&limit=10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "mode",
+            "both"
+          ],
+          "query": [
+            {
+              "key": "offset",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Restaurants by State",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/state/California?offset=0&limit=10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "state",
+            "California"
+          ],
+          "query": [
+            {
+              "key": "offset",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Restaurants with Active Promos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/promos/active?offset=0&limit=10",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "promos",
+            "active"
+          ],
+          "query": [
+            {
+              "key": "offset",
+              "value": "0"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Restaurant",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"The Pizza Hub Updated\",\n  \"openTime\": \"10:00\",\n  \"closeTime\": \"22:00\",\n  \"promo\": {\n    \"freeDelivery\": false,\n    \"discountPercentage\": 15\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/{{restaurantId}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "{{restaurantId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Restaurant Rating",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rating\": 4.8\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/{{restaurantId}}/rating",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "{{restaurantId}}",
+            "rating"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Item to Restaurant",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"itemId\": \"{{foodItemId}}\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/items/add",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "items",
+            "add"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Remove Item from Restaurant",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"itemId\": \"{{foodItemId}}\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/items/remove",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "items",
+            "remove"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Restaurant",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/restaurant/{{restaurantId}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "restaurant",
+            "{{restaurantId}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "restaurantId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "foodItemId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

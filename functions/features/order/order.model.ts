@@ -18,6 +18,7 @@ export interface IOrder extends Document {
   }>;
   totalPrice: number;
   status: OrderStatus;
+  mode: 'delivery' | 'pickup';
   deliveryAddress: {
     street: string;
     city: string;
@@ -44,6 +45,7 @@ const OrderSchema = new Schema<IOrder>({
     default: OrderStatus.Pending,
     required: true // Optional but recommended
   },
+  mode: { type: String, enum: ['delivery', 'pickup'], required: true },
   deliveryAddress: {
     street: { type: String, required: true },
     city: { type: String, required: true },
