@@ -34,7 +34,8 @@ export class FoodPrepService {
     const [foodPreps, total] = await Promise.all([
       FoodPrep.find(filter)
         .populate('consumer', 'name email')
-        .populate('items.foodItem', 'name price')
+        .populate('chefChoice', 'name email')
+        .populate('meals.choiceOfMeal', 'name category description price image')
         .skip(skip)
         .limit(limit),
       FoodPrep.countDocuments(filter)
@@ -52,7 +53,8 @@ export class FoodPrepService {
     if (!Types.ObjectId.isValid(id)) return null;
     return await FoodPrep.findById(id)
       .populate('consumer', 'name email')
-      .populate('items.foodItem', 'name price');
+      .populate('chefChoice', 'name email')
+      .populate('meals.choiceOfMeal', 'name category description price image');
   }
 
   /**
@@ -67,7 +69,7 @@ export class FoodPrepService {
       id,
       data,
       { new: true }
-    ).populate('consumer items.foodItem');
+    ).populate('consumer', 'name email').populate('chefChoice', 'name email').populate('meals.choiceOfMeal', 'name category description price image');
   }
 
   /**
@@ -84,6 +86,50 @@ export class FoodPrepService {
       return { foodPreps: [], total: 0, page: 1, limit: options.limit || 10 };
     }
     return this.get({ consumer: new Types.ObjectId(consumerId) }, options);
+  }
+
+  /**
+   * Gets food prep entries by status
+   * @param status - Food prep status
+   * @param options - Pagination options
+   * @returns Food prep entries with given status
+   */
+  async getByStatus(
+    status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled',
+    options: { page?: number; limit?: number } = {}
+  ) {
+    return this.get({ status }, options);
+  }
+
+  /**
+   * Gets food prep entries by mode
+   * @param mode - Delivery mode (delivery or pickup)
+   * @param options - Pagination options
+   * @returns Food prep entries with given mode
+   */
+  async getByMode(
+    mode: 'delivery' | 'pickup',
+    options: { page?: number; limit?: number } = {}
+  ) {
+    return this.get({ mode }, options);
+  }
+
+  /**
+   * Updates food prep status
+   * @param id - Food prep ID
+   * @param status - New status
+   * @returns Updated food prep entry
+   */
+  async updateStatus(
+    id: string,
+    status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+  ): Promise<IFoodPrep | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+    return await FoodPrep.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    ).populate('consumer', 'name email').populate('chefChoice', 'name email').populate('meals.choiceOfMeal', 'name category description price image');
   }
 
   /**
