@@ -33,42 +33,26 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OrderStatus = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-var OrderStatus;
-(function (OrderStatus) {
-    OrderStatus["Pending"] = "pending";
-    OrderStatus["Accepted"] = "accepted";
-    OrderStatus["Preparing"] = "preparing";
-    OrderStatus["Ready"] = "ready";
-    OrderStatus["Delivered"] = "delivered";
-    OrderStatus["Cancelled"] = "cancelled";
-})(OrderStatus || (exports.OrderStatus = OrderStatus = {}));
-const OrderSchema = new mongoose_1.Schema({
-    consumer: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
-    vendor: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
-    items: [
-        {
-            foodItem: { type: mongoose_1.Schema.Types.ObjectId, ref: 'FoodItem', required: true },
-            quantity: { type: Number, required: true },
-        },
-    ],
-    totalPrice: { type: Number, required: true },
-    status: {
+const RestaurantSchema = new mongoose_1.Schema({
+    name: { type: String, required: true, unique: true },
+    image: { type: String },
+    street: { type: String, required: true },
+    state: { type: String, required: true },
+    mode: {
         type: String,
-        enum: Object.values(OrderStatus),
-        default: OrderStatus.Pending,
-        required: true // Optional but recommended
+        enum: ["delivery", "pickup", "both"],
+        default: "both",
+        required: true,
     },
-    mode: { type: String, enum: ['delivery', 'pickup'], required: true },
-    deliveryAddress: {
-        street: { type: String, required: true },
-        city: { type: String, required: true },
-        state: { type: String, required: true },
-        zipCode: { type: String, required: true },
+    items: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "FoodItem" }],
+    openTime: { type: String, required: true }, // HH:mm format
+    closeTime: { type: String, required: true }, // HH:mm format
+    ratings: { type: Number, default: 0, min: 0, max: 5 },
+    promo: {
+        freeDelivery: { type: Boolean, default: false },
+        discountPercentage: { type: Number, min: 0, max: 100 },
     },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-});
-exports.default = mongoose_1.default.model('Order', OrderSchema);
-//# sourceMappingURL=order.model.js.map
+}, { timestamps: true });
+exports.default = mongoose_1.default.model("Restaurant", RestaurantSchema);
+//# sourceMappingURL=restaurant.model.js.map

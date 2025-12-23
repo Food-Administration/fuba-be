@@ -29,7 +29,8 @@ class FoodPrepService {
         const [foodPreps, total] = await Promise.all([
             food_prep_model_1.default.find(filter)
                 .populate('consumer', 'name email')
-                .populate('items.foodItem', 'name price')
+                .populate('chefChoice', 'name email')
+                .populate('meals.choiceOfMeal', 'name category description price image')
                 .skip(skip)
                 .limit(limit),
             food_prep_model_1.default.countDocuments(filter)
@@ -46,7 +47,8 @@ class FoodPrepService {
             return null;
         return await food_prep_model_1.default.findById(id)
             .populate('consumer', 'name email')
-            .populate('items.foodItem', 'name price');
+            .populate('chefChoice', 'name email')
+            .populate('meals.choiceOfMeal', 'name category description price image');
     }
     /**
      * Updates food prep entry
@@ -57,7 +59,7 @@ class FoodPrepService {
     async update(id, data) {
         if (!mongoose_1.Types.ObjectId.isValid(id))
             return null;
-        return await food_prep_model_1.default.findByIdAndUpdate(id, data, { new: true }).populate('consumer items.foodItem');
+        return await food_prep_model_1.default.findByIdAndUpdate(id, data, { new: true }).populate('consumer', 'name email').populate('chefChoice', 'name email').populate('meals.choiceOfMeal', 'name category description price image');
     }
     /**
      * Gets food prep entries by consumer ID
@@ -70,6 +72,35 @@ class FoodPrepService {
             return { foodPreps: [], total: 0, page: 1, limit: options.limit || 10 };
         }
         return this.get({ consumer: new mongoose_1.Types.ObjectId(consumerId) }, options);
+    }
+    /**
+     * Gets food prep entries by status
+     * @param status - Food prep status
+     * @param options - Pagination options
+     * @returns Food prep entries with given status
+     */
+    async getByStatus(status, options = {}) {
+        return this.get({ status }, options);
+    }
+    /**
+     * Gets food prep entries by mode
+     * @param mode - Delivery mode (delivery or pickup)
+     * @param options - Pagination options
+     * @returns Food prep entries with given mode
+     */
+    async getByMode(mode, options = {}) {
+        return this.get({ mode }, options);
+    }
+    /**
+     * Updates food prep status
+     * @param id - Food prep ID
+     * @param status - New status
+     * @returns Updated food prep entry
+     */
+    async updateStatus(id, status) {
+        if (!mongoose_1.Types.ObjectId.isValid(id))
+            return null;
+        return await food_prep_model_1.default.findByIdAndUpdate(id, { status }, { new: true }).populate('consumer', 'name email').populate('chefChoice', 'name email').populate('meals.choiceOfMeal', 'name category description price image');
     }
     /**
      * Deletes a food prep entry

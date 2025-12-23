@@ -63,6 +63,60 @@ class FoodPrepController {
                 message: 'Food preparation entry deleted successfully'
             });
         });
+        this.getByStatus = (0, asyncHandler_1.default)(async (req, res) => {
+            const { status } = req.params;
+            const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
+            if (!validStatuses.includes(status)) {
+                res.status(400).json({
+                    success: false,
+                    error: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
+                });
+                return;
+            }
+            const { foodPreps, total, page, limit } = await food_prep_service_1.default.getByStatus(status, req.query);
+            res.status(200).json({
+                success: true,
+                data: foodPreps,
+                meta: { total, page, limit }
+            });
+        });
+        this.getByMode = (0, asyncHandler_1.default)(async (req, res) => {
+            const { mode } = req.params;
+            if (!['delivery', 'pickup'].includes(mode)) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Invalid mode. Must be either "delivery" or "pickup"'
+                });
+                return;
+            }
+            const { foodPreps, total, page, limit } = await food_prep_service_1.default.getByMode(mode, req.query);
+            res.status(200).json({
+                success: true,
+                data: foodPreps,
+                meta: { total, page, limit }
+            });
+        });
+        this.updateStatus = (0, asyncHandler_1.default)(async (req, res) => {
+            const { status } = req.body;
+            const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
+            if (!status || !validStatuses.includes(status)) {
+                res.status(400).json({
+                    success: false,
+                    error: `Status is required and must be one of: ${validStatuses.join(', ')}`
+                });
+                return;
+            }
+            const foodPrep = await food_prep_service_1.default.updateStatus(req.params.id, status);
+            if (!foodPrep) {
+                res.status(404).json({ success: false, error: 'Food preparation entry not found' });
+                return;
+            }
+            res.status(200).json({
+                success: true,
+                data: foodPrep,
+                message: 'Food preparation status updated successfully'
+            });
+        });
     }
 }
 exports.FoodPrepController = FoodPrepController;

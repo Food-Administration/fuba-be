@@ -14,6 +14,7 @@ const food_item_route_1 = __importDefault(require("./features/food_item/food_ite
 const order_route_1 = __importDefault(require("./features/order/order.route"));
 const food_prep_route_1 = __importDefault(require("./features/food_prep/food_prep.route"));
 const cart_route_1 = __importDefault(require("./features/cart/cart.route"));
+const restaurant_route_1 = __importDefault(require("./features/restaurant/restaurant.route"));
 const customError_1 = __importDefault(require("./utils/customError"));
 const express_session_1 = __importDefault(require("express-session"));
 dotenv.config();
@@ -46,6 +47,7 @@ app.use('/api/food-item', food_item_route_1.default);
 app.use('/api/order', order_route_1.default);
 app.use('/api/food-prep', food_prep_route_1.default);
 app.use('/api/cart', cart_route_1.default);
+app.use('/api/restaurant', restaurant_route_1.default);
 app.get('/', (req, res) => {
     res.send('Server is running');
 });

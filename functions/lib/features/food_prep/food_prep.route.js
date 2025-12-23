@@ -10,10 +10,16 @@ const router = (0, express_1.Router)();
 router.post('/', food_prep_controller_1.default.create);
 // Get all food prep entries (with optional query)
 router.get('/', food_prep_controller_1.default.get);
+// Get food prep entries by status
+router.get('/status/:status', food_prep_controller_1.default.getByStatus);
+// Get food prep entries by mode
+router.get('/mode/:mode', food_prep_controller_1.default.getByMode);
 // Get food prep entry by ID
 router.get('/:id', food_prep_controller_1.default.getById);
 // Update food prep entry
 router.put('/:id', food_prep_controller_1.default.update);
+// Update food prep status
+router.patch('/:id/status', food_prep_controller_1.default.updateStatus);
 // Get food prep entries by consumer
 router.get('/consumer/:consumerId', food_prep_controller_1.default.getByConsumer);
 // Delete food prep entry

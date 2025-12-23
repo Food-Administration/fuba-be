@@ -34,16 +34,36 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
+const MealItemSchema = new mongoose_1.Schema({
+    choiceOfMeal: { type: mongoose_1.Schema.Types.ObjectId, ref: 'FoodItem', required: true },
+    description: { type: String, required: true },
+    note: { type: String },
+    quantity: { type: Number, required: true },
+    measurement: {
+        type: String,
+        enum: ['litre', 'service'],
+        required: true,
+    },
+    amount: { type: Number, required: true },
+}, { _id: true });
 const FoodPrepSchema = new mongoose_1.Schema({
     consumer: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
-    items: [
-        {
-            foodItem: { type: mongoose_1.Schema.Types.ObjectId, ref: 'FoodItem', required: true },
-            quantity: { type: Number, required: true },
-        },
-    ],
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-});
+    chefChoice: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
+    status: {
+        type: String,
+        enum: ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'],
+        default: 'pending',
+        required: true,
+    },
+    mode: {
+        type: String,
+        enum: ['delivery', 'pickup'],
+        required: true,
+    },
+    deliveryDate: { type: Date, required: true },
+    address: { type: String, required: true },
+    phoneNumber: { type: String, required: true },
+    meals: [MealItemSchema],
+}, { timestamps: true });
 exports.default = mongoose_1.default.model('FoodPrep', FoodPrepSchema);
 //# sourceMappingURL=food_prep.model.js.map
