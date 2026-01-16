@@ -5,6 +5,7 @@ export interface IRestaurant extends Document {
   image?: string;
   street: string;
   state: string;
+  isFavorite?: boolean;
   mode: "delivery" | "pickup" | "both";
   items: Schema.Types.ObjectId[];
   openTime: string; // Format: HH:mm (e.g., "09:00")
@@ -30,6 +31,7 @@ const RestaurantSchema = new Schema<IRestaurant>(
       default: "both",
       required: true,
     },
+    isFavorite: { type: Boolean, default: false },
     items: [{ type: Schema.Types.ObjectId, ref: "FoodItem" }],
     openTime: { type: String, required: true }, // HH:mm format
     closeTime: { type: String, required: true }, // HH:mm format

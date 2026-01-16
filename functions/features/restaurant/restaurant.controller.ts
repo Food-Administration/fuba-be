@@ -13,9 +13,13 @@ export class RestaurantController {
 
   /**
    * Retrieves all restaurants with optional filters and pagination.
+   * @query offset - Pagination offset (default: 0)
+   * @query limit - Pagination limit (default: 10)
+   * @query search - Search by restaurant name (optional)
+   * @query promo - Filter by promo: 'freeDelivery' or 'discount' (optional)
    */
   get = asyncHandler(async (req: Request, res: Response) => {
-    const { offset = "0", limit = "10", search } = req.query;
+    const { offset = "0", limit = "10", search, promo } = req.query;
 
     // Parse query parameters
     const numericOffset = parseInt(offset as string, 10) || 0;
@@ -28,6 +32,20 @@ export class RestaurantController {
     if (typeof search === "string" && search.trim().length > 0) {
       const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       filter.name = { $regex: escapedSearch, $options: "i" };
+    }
+
+    // Add promo filter if provided
+    if (typeof promo === "string" && promo.trim().length > 0) {
+      if (promo === "freeDelivery") {
+        filter["promo.freeDelivery"] = true;
+      } else if (promo === "discount") {
+        filter["promo.discountPercentage"] = { $gt: 0 };
+      } else if (promo === "any") {
+        filter.$or = [
+          { "promo.freeDelivery": true },
+          { "promo.discountPercentage": { $gt: 0 } },
+        ];
+      }
     }
 
     const { restaurants, total } = await RestaurantService.get(filter, {
@@ -43,10 +61,25 @@ export class RestaurantController {
   });
 
   /**
-   * Retrieves a restaurant by its ID.
+   * Retrieves a restaurant by its ID with optional filters.
+   * @query search - Search within restaurant items by name (optional)
+   * @query promo - Filter by promo: 'freeDelivery' or 'discount' (optional)
    */
   getById = asyncHandler(async (req: Request, res: Response) => {
-    const restaurant = await RestaurantService.getById(req.params.id);
+    const { search, promo } = req.query;
+
+    // Build options object for optional filters
+    const options: { search?: string; promo?: string } = {};
+
+    if (typeof search === "string" && search.trim().length > 0) {
+      options.search = search.trim();
+    }
+
+    if (typeof promo === "string" && promo.trim().length > 0) {
+      options.promo = promo.trim();
+    }
+
+    const restaurant = await RestaurantService.getById(req.params.id, options);
     if (!restaurant) {
       res
         .status(404)

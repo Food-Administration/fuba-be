@@ -42,16 +42,53 @@ export class RestaurantService {
   }
 
   /**
-   * Retrieves a restaurant by its ID.
+   * Retrieves a restaurant by its ID with optional filters.
    * @param id - The ID of the restaurant.
+   * @param options - Optional filters: search (filter items by name), promo (filter by promo type).
    * @returns The restaurant if found, otherwise null.
    */
-  async getById(id: string): Promise<IRestaurant | null> {
+  async getById(
+    id: string,
+    options: { search?: string; promo?: string } = {}
+  ): Promise<IRestaurant | null> {
     if (!Types.ObjectId.isValid(id)) return null;
-    return await Restaurant.findById(id).populate(
+
+    // Build the query
+    const query: any = { _id: id };
+
+    // Add promo filter if provided
+    if (options.promo) {
+      if (options.promo === "freeDelivery") {
+        query["promo.freeDelivery"] = true;
+      } else if (options.promo === "discount") {
+        query["promo.discountPercentage"] = { $gt: 0 };
+      } else if (options.promo === "any") {
+        query.$or = [
+          { "promo.freeDelivery": true },
+          { "promo.discountPercentage": { $gt: 0 } },
+        ];
+        query._id = id; // Ensure ID is still part of the query
+      }
+    }
+
+    const restaurant = await Restaurant.findOne(query).populate(
       "items",
       "name category description price image"
     );
+
+    if (!restaurant) return null;
+
+    // If search is provided, filter items by name
+    if (options.search) {
+      const searchRegex = new RegExp(options.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      const restaurantObj = restaurant.toObject();
+      restaurantObj.items = (restaurantObj.items as any[]).filter(
+        (item: any) => searchRegex.test(item.name)
+      );
+      return restaurantObj as IRestaurant;
+    }
+
+    return restaurant;
   }
 
   /**
