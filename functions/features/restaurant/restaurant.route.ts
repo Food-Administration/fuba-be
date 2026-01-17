@@ -37,4 +37,7 @@ router.post("/items/remove", jwtAuth, RestaurantController.removeItem);
 // Delete a restaurant by ID
 router.delete("/:id", jwtAuth, RestaurantController.delete);
 
+//user mark favorite restaurant
+router.post("/:id/favorite", jwtAuth, RestaurantController.toggleFavorite);
+
 export default router;

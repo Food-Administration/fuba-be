@@ -11,6 +11,10 @@ export interface IRestaurant extends Document {
   openTime: string; // Format: HH:mm (e.g., "09:00")
   closeTime: string; // Format: HH:mm (e.g., "22:00")
   ratings: number; // Average rating (0-5)
+  mapLocation?: {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+  };
   promo: {
     freeDelivery: boolean;
     discountPercentage?: number;
@@ -40,9 +44,23 @@ const RestaurantSchema = new Schema<IRestaurant>(
       freeDelivery: { type: Boolean, default: false },
       discountPercentage: { type: Number, min: 0, max: 100 },
     },
+    mapLocation: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        default: [0, 0]
+      }
+    },
   },
   { timestamps: true }
 );
+
+// Create 2dsphere index for geospatial queries
+RestaurantSchema.index({ mapLocation: "2dsphere" });
 
 export default mongoose.model<IRestaurant>(
   "Restaurant",

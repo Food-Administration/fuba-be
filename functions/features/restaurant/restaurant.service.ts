@@ -44,12 +44,12 @@ export class RestaurantService {
   /**
    * Retrieves a restaurant by its ID with optional filters.
    * @param id - The ID of the restaurant.
-   * @param options - Optional filters: search (filter items by name), promo (filter by promo type).
+   * @param options - Optional filters: search (filter items by name), promo (filter by promo type), mapLocation (check distance).
    * @returns The restaurant if found, otherwise null.
    */
   async getById(
     id: string,
-    options: { search?: string; promo?: string } = {}
+    options: { search?: string; promo?: string; mapLocation?: string } = {}
   ): Promise<IRestaurant | null> {
     if (!Types.ObjectId.isValid(id)) return null;
 
@@ -68,6 +68,28 @@ export class RestaurantService {
           { "promo.discountPercentage": { $gt: 0 } },
         ];
         query._id = id; // Ensure ID is still part of the query
+      }
+    }
+
+    // Add mapLocation filter if provided (latitude,longitude,radius)
+    if (options.mapLocation) {
+      const locationParts = options.mapLocation.split(',');
+      if (locationParts.length >= 2) {
+        const latitude = parseFloat(locationParts[0]);
+        const longitude = parseFloat(locationParts[1]);
+        const radius = locationParts.length > 2 ? parseFloat(locationParts[2]) : 10; // Default 10km radius
+
+        if (!isNaN(latitude) && !isNaN(longitude) && !isNaN(radius)) {
+          query.mapLocation = {
+            $near: {
+              $geometry: {
+                type: "Point",
+                coordinates: [longitude, latitude] // MongoDB uses [longitude, latitude]
+              },
+              $maxDistance: radius * 1000 // Convert km to meters
+            }
+          };
+        }
       }
     }
 
@@ -230,6 +252,21 @@ export class RestaurantService {
       { ratings: newRating },
       { new: true }
     ).populate("items", "name category description price image");
+  }
+
+  async toggleFavorite(userId: string, restaurantId: string): Promise<IRestaurant | null> {
+    if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(restaurantId)) {
+      return null;
+    }
+
+    // Implement the logic to toggle favorite status here
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      return null;
+    }
+    restaurant.isFavorite = !restaurant.isFavorite;
+    await restaurant.save();
+    return restaurant;
   }
 }
 

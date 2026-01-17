@@ -25,6 +25,11 @@ export interface UserDocument extends Document {
     full_name: string;
     otp_expires?: Date;
     otp?: string;
+    mapLocation?: {
+        latitude: number;
+        longitude: number;
+    };
+    favoriteRestaurants?: Types.ObjectId[];
     otp_secret?: string;
     verified: boolean;
     profile_picture: string;
@@ -47,6 +52,10 @@ const UserSchema = new Schema<UserDocument>({
     first_name: { type: String },
     last_name: { type: String },
     profile_picture: { type: String },
+    mapLocation: {
+        latitude: { type: Number },
+        longitude: { type: Number },
+    },
     googleId: { type: String, default: null },
     twoFactorSecret: { type: String },
     otp_expires: { type: Date },
@@ -56,6 +65,7 @@ const UserSchema = new Schema<UserDocument>({
     reset_password_token: { type: String },
     reset_password_expires: { type: Date },
     settings: { type: String, default: null },
+    favoriteRestaurants: [{ type: Schema.Types.ObjectId, ref: 'Restaurant' }],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 },
