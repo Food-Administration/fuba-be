@@ -7,7 +7,13 @@ export class RestaurantController {
    * Creates a new restaurant.
    */
   create = asyncHandler(async (req: Request, res: Response) => {
-    const restaurant = await RestaurantService.create(req.body);
+    const userId = req.user?.id;
+    const file = req.file;
+    
+    const restaurant = file 
+      ? await RestaurantService.createWithImage(req.body, file, userId)
+      : await RestaurantService.create(req.body);
+      
     res.status(201).json({ success: true, data: restaurant });
   });
 
@@ -211,7 +217,7 @@ export class RestaurantController {
    * Deletes a restaurant by its ID.
    */
   delete = asyncHandler(async (req: Request, res: Response) => {
-    const restaurant = await RestaurantService.delete(req.params.id);
+    const restaurant = await RestaurantService.deleteWithImage(req.params.id);
     if (!restaurant) {
       res
         .status(404)
@@ -221,6 +227,38 @@ export class RestaurantController {
     res.status(200).json({
       success: true,
       message: "Restaurant deleted successfully",
+    });
+  });
+
+  /**
+   * Updates restaurant image.
+   */
+  updateImage = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const file = req.file;
+    const userId = req.user?.id;
+
+    if (!file) {
+      res.status(400).json({
+        success: false,
+        error: "No image file uploaded",
+      });
+      return;
+    }
+
+    const restaurant = await RestaurantService.updateImage(id, file, userId);
+    if (!restaurant) {
+      res.status(404).json({
+        success: false,
+        error: "Restaurant not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: restaurant,
+      message: "Restaurant image updated successfully",
     });
   });
 

@@ -58,12 +58,41 @@ class UserController {
   static updateProfilePicture = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
       const { userId } = req.params;
+      const file = req.file;
+      
+      // If file is uploaded, use the new upload method
+      if (file) {
+        const updatedProfile = await UserService.uploadProfilePicture(
+          userId,
+          file
+        );
+        res.status(200).json({
+          success: true,
+          data: updatedProfile,
+          message: 'Profile picture updated successfully'
+        });
+        return;
+      }
+      
+      // Fallback to URL-based update
       const { imageUrl } = req.body;
+      if (!imageUrl) {
+        res.status(400).json({
+          success: false,
+          error: 'No image file or imageUrl provided'
+        });
+        return;
+      }
+      
       const updatedProfile = await UserService.updateProfilePicture(
         userId,
         imageUrl
       );
-      res.status(200).json(updatedProfile);
+      res.status(200).json({
+        success: true,
+        data: updatedProfile,
+        message: 'Profile picture updated successfully'
+      });
     }
   );
 

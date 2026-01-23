@@ -10,8 +10,10 @@ import orderRoutes from './features/order/order.route';
 import foodPrepRoutes from './features/food_prep/food_prep.route';
 import cartRoutes from './features/cart/cart.route';
 import restaurantRoutes from './features/restaurant/restaurant.route';
+import fileRoutes from './features/file/file.route';
 import CustomError from './utils/customError';
 import session from 'express-session';
+import { validateCloudinaryConfig } from './config/cloudinary';
 
 dotenv.config();
 
@@ -51,6 +53,7 @@ app.use('/api/order', orderRoutes);
 app.use('/api/food-prep', foodPrepRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/restaurant', restaurantRoutes);
+app.use('/api/file', fileRoutes);
 
 app.get('/', (req, res) => {
   res.send('Server is running');
@@ -82,4 +85,5 @@ app.all("*", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
   connectDB();
+  validateCloudinaryConfig();
 });

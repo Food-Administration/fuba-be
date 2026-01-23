@@ -9,6 +9,8 @@ type UserDocument = Document & {
   [key: string]: any;
 };
 import CustomError from '../../utils/customError';
+import FileService from '../file/file.service';
+import cloudinary from '../../config/cloudinary';
 
 class UserService {
   async getUserById(id: string) {
@@ -97,6 +99,56 @@ class UserService {
     }
 
     return { ...user.toObject(), _id: user._id.toString() } as unknown as UserDocument;
+  }
+
+  /**
+   * Upload or update a user's profile picture with file upload.
+   * @param userId - The ID of the user.
+   * @param file - The uploaded file from multer.
+   * @returns The updated user profile.
+   */
+  async uploadProfilePicture(
+    userId: string,
+    file: Express.Multer.File
+  ): Promise<UserDocument> {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new CustomError('User not found', 404);
+    }
+
+    // Delete old profile picture from Cloudinary if exists
+    if (user.profile_picture) {
+      try {
+        const urlParts = user.profile_picture.split('/');
+        const publicIdWithExtension = urlParts.slice(-2).join('/');
+        const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '');
+        await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+      } catch (error) {
+        console.error('Failed to delete old profile picture:', error);
+      }
+    }
+
+    // Save file metadata
+    await FileService.saveFileMetadata(file, {
+      uploadedBy: userId,
+      folder: 'profiles',
+      associatedModel: 'User',
+      associatedId: userId,
+    });
+
+    // Update user with new profile picture URL
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profile_picture: file.path },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      throw new CustomError('User not found', 404);
+    }
+
+    return { ...updatedUser.toObject(), _id: updatedUser._id.toString() } as unknown as UserDocument;
   }
 }
 

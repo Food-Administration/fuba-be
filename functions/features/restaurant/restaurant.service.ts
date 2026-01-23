@@ -1,5 +1,7 @@
 import Restaurant, { IRestaurant } from "./restaurant.model";
 import { Types } from "mongoose";
+import FileService from "../file/file.service";
+import cloudinary from "../../config/cloudinary";
 
 export class RestaurantService {
   /**
@@ -267,6 +269,111 @@ export class RestaurantService {
     restaurant.isFavorite = !restaurant.isFavorite;
     await restaurant.save();
     return restaurant;
+  }
+
+  /**
+   * Updates the restaurant image.
+   * @param id - The ID of the restaurant.
+   * @param file - The uploaded file from multer.
+   * @param uploadedBy - The ID of the user uploading the image.
+   * @returns The updated restaurant if found, otherwise null.
+   */
+  async updateImage(
+    id: string,
+    file: Express.Multer.File,
+    uploadedBy?: string
+  ): Promise<IRestaurant | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
+    const restaurant = await Restaurant.findById(id);
+    if (!restaurant) return null;
+
+    // Delete old image from Cloudinary if exists
+    if (restaurant.image) {
+      try {
+        // Extract public ID from URL if it's a Cloudinary URL
+        const urlParts = restaurant.image.split("/");
+        const publicIdWithExtension = urlParts.slice(-2).join("/");
+        const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, "");
+        await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+      } catch (error) {
+        console.error("Failed to delete old restaurant image:", error);
+      }
+    }
+
+    // Save file metadata
+    await FileService.saveFileMetadata(file, {
+      uploadedBy,
+      folder: "restaurants",
+      associatedModel: "Restaurant",
+      associatedId: id,
+    });
+
+    // Update restaurant with new image URL
+    return await Restaurant.findByIdAndUpdate(
+      id,
+      { image: file.path },
+      { new: true }
+    ).populate("items", "name category description price image");
+  }
+
+  /**
+   * Creates a new restaurant with an image.
+   * @param data - Partial data for the restaurant.
+   * @param file - The uploaded image file (optional).
+   * @param uploadedBy - The ID of the user uploading the image.
+   * @returns The created restaurant.
+   */
+  async createWithImage(
+    data: Partial<IRestaurant>,
+    file?: Express.Multer.File,
+    uploadedBy?: string
+  ): Promise<IRestaurant> {
+    // If there's a file, set the image URL
+    if (file) {
+      data.image = file.path;
+    }
+
+    const restaurant = new Restaurant(data);
+    const savedRestaurant = await restaurant.save();
+
+    // Save file metadata if file was uploaded
+    if (file) {
+      await FileService.saveFileMetadata(file, {
+        uploadedBy,
+        folder: "restaurants",
+        associatedModel: "Restaurant",
+        associatedId: (savedRestaurant._id as Types.ObjectId).toString(),
+      });
+    }
+
+    return savedRestaurant;
+  }
+
+  /**
+   * Deletes a restaurant and its associated image.
+   * @param id - The ID of the restaurant to delete.
+   * @returns The deleted restaurant if found, otherwise null.
+   */
+  async deleteWithImage(id: string): Promise<IRestaurant | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
+    const restaurant = await Restaurant.findById(id);
+    if (!restaurant) return null;
+
+    // Delete image from Cloudinary if exists
+    if (restaurant.image) {
+      try {
+        const urlParts = restaurant.image.split("/");
+        const publicIdWithExtension = urlParts.slice(-2).join("/");
+        const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, "");
+        await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+      } catch (error) {
+        console.error("Failed to delete restaurant image:", error);
+      }
+    }
+
+    return await Restaurant.findByIdAndDelete(id);
   }
 }
 

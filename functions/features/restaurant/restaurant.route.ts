@@ -1,11 +1,12 @@
 import { Router } from "express";
 import RestaurantController from "./restaurant.controller";
 import jwtAuth from '../../middleware/jwtAuth';
+import { uploadImage } from '../../middleware/upload';
 
 const router = Router();
 
-// Create a restaurant
-router.post("/", jwtAuth, RestaurantController.create);
+// Create a restaurant (with optional image)
+router.post("/", jwtAuth, uploadImage.single("image"), RestaurantController.create);
 
 // Get all restaurants (with optional search and pagination)
 router.get("/", jwtAuth, RestaurantController.get);
@@ -24,6 +25,9 @@ router.get("/:id", jwtAuth, RestaurantController.getById);
 
 // Update a restaurant by ID
 router.put("/:id", jwtAuth, RestaurantController.update);
+
+// Update restaurant image
+router.patch("/:id/image", jwtAuth, uploadImage.single("image"), RestaurantController.updateImage);
 
 // Update restaurant rating
 router.patch("/:id/rating", jwtAuth, RestaurantController.updateRating);
