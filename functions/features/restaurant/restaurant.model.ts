@@ -1,15 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IRestaurant extends Document {
-  name: string;
+  name?: string;
   image?: string;
-  street: string;
-  state: string;
+  street?: string;
+  state?: string;
   isFavorite?: boolean;
   mode: "delivery" | "pickup" | "both";
   items: Schema.Types.ObjectId[];
-  openTime: string; // Format: HH:mm (e.g., "09:00")
-  closeTime: string; // Format: HH:mm (e.g., "22:00")
+  openTime?: string; // Format: HH:mm (e.g., "09:00")
+  closeTime?: string; // Format: HH:mm (e.g., "22:00")
   ratings: number; // Average rating (0-5)
   mapLocation?: {
     type: 'Point';
@@ -25,10 +25,10 @@ export interface IRestaurant extends Document {
 
 const RestaurantSchema = new Schema<IRestaurant>(
   {
-    name: { type: String, required: true, unique: true },
+    name: { type: String },
     image: { type: String },
-    street: { type: String, required: true },
-    state: { type: String, required: true },
+    street: { type: String },
+    state: { type: String },
     mode: {
       type: String,
       enum: ["delivery", "pickup", "both"],
@@ -37,8 +37,8 @@ const RestaurantSchema = new Schema<IRestaurant>(
     },
     isFavorite: { type: Boolean, default: false },
     items: [{ type: Schema.Types.ObjectId, ref: "FoodItem" }],
-    openTime: { type: String, required: true }, // HH:mm format
-    closeTime: { type: String, required: true }, // HH:mm format
+    openTime: { type: String }, // HH:mm format
+    closeTime: { type: String }, // HH:mm format
     ratings: { type: Number, default: 0, min: 0, max: 5 },
     promo: {
       freeDelivery: { type: Boolean, default: false },
@@ -61,6 +61,12 @@ const RestaurantSchema = new Schema<IRestaurant>(
 
 // Create 2dsphere index for geospatial queries
 RestaurantSchema.index({ mapLocation: "2dsphere" });
+
+// Ensure restaurant names are unique only when provided
+RestaurantSchema.index(
+  { name: 1 },
+  { unique: true, partialFilterExpression: { name: { $type: "string" } } }
+);
 
 export default mongoose.model<IRestaurant>(
   "Restaurant",

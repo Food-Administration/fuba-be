@@ -22,7 +22,8 @@ export class RestaurantService {
    */
   async get(
     filter: import("mongoose").FilterQuery<IRestaurant> = {},
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
+    userLocation?: { latitude: number; longitude: number; radiusKm?: number }
   ): Promise<{
     restaurants: IRestaurant[];
     total: number;
@@ -32,6 +33,72 @@ export class RestaurantService {
     const offset = Math.max(0, options.offset || 0);
     const limit = Math.max(1, options.limit || 10);
 
+    // If user location is provided, use aggregation with $geoNear to include distance
+    if (userLocation) {
+      const { latitude, longitude, radiusKm = 10 } = userLocation;
+
+      // Build a match filter from the provided filter but exclude any mapLocation-specific operators
+      const match: any = { ...filter } as any;
+      if (match.mapLocation) delete match.mapLocation;
+
+      const pipeline: any[] = [
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [longitude, latitude] },
+            distanceField: "distanceMeters",
+            spherical: true,
+            maxDistance: radiusKm * 1000,
+          },
+        },
+      ];
+
+      if (Object.keys(match).length > 0) {
+        pipeline.push({ $match: match });
+      }
+
+      pipeline.push(
+        {
+          $lookup: {
+            from: "fooditems",
+            localField: "items",
+            foreignField: "_id",
+            as: "items",
+          },
+        },
+        { $skip: offset },
+        { $limit: limit }
+      );
+
+      const restaurantsAgg = (await Restaurant.aggregate(pipeline)) as any[];
+
+      // Count total with a separate aggregation
+      const countPipeline: any[] = [
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [longitude, latitude] },
+            distanceField: "distanceMeters",
+            spherical: true,
+            maxDistance: radiusKm * 1000,
+          },
+        },
+      ];
+      if (Object.keys(match).length > 0) {
+        countPipeline.push({ $match: match });
+      }
+      countPipeline.push({ $count: "total" });
+      const countRes = await Restaurant.aggregate(countPipeline);
+      const total = countRes.length ? countRes[0].total : 0;
+
+      // Convert meters to km for convenience
+      const restaurants = restaurantsAgg.map((r: any) => ({
+        ...r,
+        distanceKm: r.distanceMeters / 1000,
+      })) as unknown as IRestaurant[];
+
+      return { restaurants, total, offset, limit };
+    }
+
+    // Default non-geo behavior
     const [restaurants, total] = await Promise.all([
       Restaurant.find(filter)
         .populate("items", "name category description price image")
@@ -55,10 +122,71 @@ export class RestaurantService {
   ): Promise<IRestaurant | null> {
     if (!Types.ObjectId.isValid(id)) return null;
 
-    // Build the query
+    // If mapLocation is provided, use aggregation with $geoNear to include distance
+    if (options.mapLocation) {
+      const locationParts = options.mapLocation.split(',');
+      if (locationParts.length >= 2) {
+        const latitude = parseFloat(locationParts[0]);
+        const longitude = parseFloat(locationParts[1]);
+        const radius = locationParts.length > 2 ? parseFloat(locationParts[2]) : 10; // km
+
+        if (!isNaN(latitude) && !isNaN(longitude)) {
+          const pipeline: any[] = [
+            {
+              $geoNear: {
+                near: { type: "Point", coordinates: [longitude, latitude] },
+                distanceField: "distanceMeters",
+                spherical: true,
+                maxDistance: !isNaN(radius) ? radius * 1000 : 10 * 1000,
+                query: { _id: new Types.ObjectId(id) },
+              },
+            },
+          ];
+
+          // Promo filters
+          if (options.promo) {
+            const promoMatch: any = {};
+            if (options.promo === "freeDelivery") {
+              promoMatch["promo.freeDelivery"] = true;
+            } else if (options.promo === "discount") {
+              promoMatch["promo.discountPercentage"] = { $gt: 0 };
+            } else if (options.promo === "any") {
+              promoMatch.$or = [
+                { "promo.freeDelivery": true },
+                { "promo.discountPercentage": { $gt: 0 } },
+              ];
+            }
+            if (Object.keys(promoMatch).length) pipeline.push({ $match: promoMatch });
+          }
+
+          pipeline.push({
+            $lookup: {
+              from: "fooditems",
+              localField: "items",
+              foreignField: "_id",
+              as: "items",
+            },
+          });
+
+          const results = await Restaurant.aggregate(pipeline);
+          if (!results.length) return null;
+
+          let restaurant: any = results[0];
+          // If search is provided, filter items by name
+          if (options.search) {
+            const searchRegex = new RegExp(options.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+            restaurant.items = (restaurant.items as any[]).filter((item: any) => searchRegex.test(item.name));
+          }
+
+          restaurant = { ...restaurant, distanceKm: restaurant.distanceMeters / 1000 };
+          return restaurant as unknown as IRestaurant;
+        }
+      }
+    }
+
+    // Build the query for non-geo case
     const query: any = { _id: id };
 
-    // Add promo filter if provided
     if (options.promo) {
       if (options.promo === "freeDelivery") {
         query["promo.freeDelivery"] = true;
@@ -69,29 +197,7 @@ export class RestaurantService {
           { "promo.freeDelivery": true },
           { "promo.discountPercentage": { $gt: 0 } },
         ];
-        query._id = id; // Ensure ID is still part of the query
-      }
-    }
-
-    // Add mapLocation filter if provided (latitude,longitude,radius)
-    if (options.mapLocation) {
-      const locationParts = options.mapLocation.split(',');
-      if (locationParts.length >= 2) {
-        const latitude = parseFloat(locationParts[0]);
-        const longitude = parseFloat(locationParts[1]);
-        const radius = locationParts.length > 2 ? parseFloat(locationParts[2]) : 10; // Default 10km radius
-
-        if (!isNaN(latitude) && !isNaN(longitude) && !isNaN(radius)) {
-          query.mapLocation = {
-            $near: {
-              $geometry: {
-                type: "Point",
-                coordinates: [longitude, latitude] // MongoDB uses [longitude, latitude]
-              },
-              $maxDistance: radius * 1000 // Convert km to meters
-            }
-          };
-        }
+        query._id = id;
       }
     }
 
@@ -99,16 +205,12 @@ export class RestaurantService {
       "items",
       "name category description price image"
     );
-
     if (!restaurant) return null;
 
-    // If search is provided, filter items by name
     if (options.search) {
       const searchRegex = new RegExp(options.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
       const restaurantObj = restaurant.toObject();
-      restaurantObj.items = (restaurantObj.items as any[]).filter(
-        (item: any) => searchRegex.test(item.name)
-      );
+      restaurantObj.items = (restaurantObj.items as any[]).filter((item: any) => searchRegex.test(item.name));
       return restaurantObj as IRestaurant;
     }
 

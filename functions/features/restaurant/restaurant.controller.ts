@@ -55,24 +55,16 @@ export class RestaurantController {
       }
     }
 
-    // Add mapLocation filter if provided (latitude,longitude,radius)
+    // Parse user location if provided (latitude,longitude,radius[km])
+    let userLocation: { latitude: number; longitude: number; radiusKm?: number } | undefined;
     if (typeof mapLocation === "string" && mapLocation.trim().length > 0) {
       const locationParts = mapLocation.split(',');
       if (locationParts.length >= 2) {
         const latitude = parseFloat(locationParts[0]);
         const longitude = parseFloat(locationParts[1]);
-        const radius = locationParts.length > 2 ? parseFloat(locationParts[2]) : 10; // Default 10km radius
-
-        if (!isNaN(latitude) && !isNaN(longitude) && !isNaN(radius)) {
-          filter.mapLocation = {
-            $near: {
-              $geometry: {
-                type: "Point",
-                coordinates: [longitude, latitude] // MongoDB uses [longitude, latitude]
-              },
-              $maxDistance: radius * 1000 // Convert km to meters
-            }
-          };
+        const radiusKm = locationParts.length > 2 ? parseFloat(locationParts[2]) : 10; // Default 10km radius
+        if (!isNaN(latitude) && !isNaN(longitude)) {
+          userLocation = { latitude, longitude, radiusKm: !isNaN(radiusKm) ? radiusKm : 10 };
         }
       }
     }
@@ -80,7 +72,7 @@ export class RestaurantController {
     const { restaurants, total } = await RestaurantService.get(filter, {
       offset: numericOffset,
       limit: numericLimit,
-    });
+    }, userLocation);
 
     res.status(200).json({
       success: true,
