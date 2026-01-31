@@ -11,6 +11,7 @@ import foodPrepRoutes from './features/food_prep/food_prep.route';
 import cartRoutes from './features/cart/cart.route';
 import restaurantRoutes from './features/restaurant/restaurant.route';
 import fileRoutes from './features/file/file.route';
+import promoRoutes from './features/promo/promo.route';
 import CustomError from './utils/customError';
 import session from 'express-session';
 import { validateCloudinaryConfig } from './config/cloudinary';
@@ -54,6 +55,7 @@ app.use('/api/food-prep', foodPrepRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/restaurant', restaurantRoutes);
 app.use('/api/file', fileRoutes);
+app.use('/api/promo', promoRoutes);
 
 app.get('/', (req, res) => {
   res.send('Server is running');

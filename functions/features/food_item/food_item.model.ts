@@ -10,7 +10,7 @@ export interface IFoodItem extends Document {
   };
   vendor: Schema.Types.ObjectId;
   image?: string;
-  category: string;
+  category: string[]; // list of categories
   available: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -27,7 +27,7 @@ const FoodItemSchema = new Schema<IFoodItem>({
   // Vendor is optional to support Home Chef items not tied to a specific vendor
   vendor: { type: Schema.Types.ObjectId, ref: "User", required: false },
   image: { type: String },
-  category: { type: String },
+  category: { type: [String], default: [] },
   available: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

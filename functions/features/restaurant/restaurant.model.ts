@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IRestaurant extends Document {
   name?: string;
   image?: string;
+  coverImage?: string;
   street?: string;
   state?: string;
   isFavorite?: boolean;
@@ -27,6 +28,7 @@ const RestaurantSchema = new Schema<IRestaurant>(
   {
     name: { type: String },
     image: { type: String },
+    coverImage: { type: String },
     street: { type: String },
     state: { type: String },
     mode: {

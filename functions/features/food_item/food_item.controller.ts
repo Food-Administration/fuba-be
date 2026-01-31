@@ -3,6 +3,50 @@ import FoodItemService from "./food_item.service";
 import asyncHandler from "../../utils/asyncHandler";
 
 export class FoodItemController {
+  private normalizeCategories(input: any): string[] | undefined {
+    if (input === undefined || input === null) return undefined;
+    const add = (acc: string[], val: string) => {
+      const v = val.trim();
+      if (v) acc.push(v);
+      return acc;
+    };
+    let values: string[] = [];
+    if (Array.isArray(input)) {
+      for (const item of input) {
+        if (typeof item === "string") {
+          if (item.trim().startsWith("[") && item.trim().endsWith("]")) {
+            try {
+              const parsed = JSON.parse(item);
+              if (Array.isArray(parsed)) values = values.concat(parsed.map(String));
+            } catch {}
+          } else if (item.includes(",")) {
+            values = values.concat(item.split(",").reduce(add, []));
+          } else {
+            values.push(item);
+          }
+        }
+      }
+    } else if (typeof input === "string") {
+      const str = input.trim();
+      if (!str) return [];
+      if (str.startsWith("[") && str.endsWith("]")) {
+        try {
+          const parsed = JSON.parse(str);
+          if (Array.isArray(parsed)) values = values.concat(parsed.map(String));
+        } catch {
+          values.push(str);
+        }
+      } else if (str.includes(",")) {
+        values = values.concat(str.split(",").reduce(add, []));
+      } else {
+        values.push(str);
+      }
+    }
+    // trim and dedupe
+    const trimmed = values.map(v => v.trim()).filter(Boolean);
+    return Array.from(new Set(trimmed));
+  }
+
   create = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const file = req.file;
@@ -10,6 +54,11 @@ export class FoodItemController {
     const payload: any = { ...req.body };
     if (payload.vendor) {
       delete payload.vendor;
+    }
+
+    const normalized = this.normalizeCategories(payload.category ?? payload.categories);
+    if (normalized !== undefined) {
+      payload.category = normalized;
     }
 
     const foodItem = file
@@ -76,6 +125,11 @@ export class FoodItemController {
     const payload: any = { ...req.body };
     if (payload.vendor) {
       delete payload.vendor;
+    }
+
+    const normalized = this.normalizeCategories(payload.category ?? payload.categories);
+    if (normalized !== undefined) {
+      payload.category = normalized;
     }
     const foodItem = await FoodItemService.update(req.params.id, payload);
     if (!foodItem) {
