@@ -152,6 +152,19 @@ export const uploadImage = multer({
 });
 
 /**
+ * Flexible image upload middleware
+ * - Accepts image files from any field name (avoids "Unexpected field" errors)
+ * - Still enforces image-only types and size limits
+ */
+export const uploadImageFlexible = multer({
+  storage: cloudinaryStorage,
+  fileFilter: imageOnlyFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  },
+}).any();
+
+/**
  * Document-only upload middleware
  * Max file size: 10MB
  */

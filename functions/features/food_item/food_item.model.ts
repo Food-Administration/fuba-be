@@ -24,7 +24,8 @@ const FoodItemSchema = new Schema<IFoodItem>({
     executive: { type: Number, required: true },
     regular: { type: Number, required: true },
   },
-  vendor: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  // Vendor is optional to support Home Chef items not tied to a specific vendor
+  vendor: { type: Schema.Types.ObjectId, ref: "User", required: false },
   image: { type: String },
   category: { type: String },
   available: { type: Boolean, default: true },

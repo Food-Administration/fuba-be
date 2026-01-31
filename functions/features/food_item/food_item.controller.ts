@@ -6,10 +6,15 @@ export class FoodItemController {
   create = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const file = req.file;
-    
+    // Prevent tying Home Chef items to a vendor by stripping vendor field
+    const payload: any = { ...req.body };
+    if (payload.vendor) {
+      delete payload.vendor;
+    }
+
     const foodItem = file
-      ? await FoodItemService.createWithImage(req.body, file, userId)
-      : await FoodItemService.create(req.body);
+      ? await FoodItemService.createWithImage(payload, file, userId)
+      : await FoodItemService.create(payload);
       
     res.status(201).json({ success: true, data: foodItem });
   });
@@ -67,7 +72,12 @@ export class FoodItemController {
   });
 
   update = asyncHandler(async (req: Request, res: Response) => {
-    const foodItem = await FoodItemService.update(req.params.id, req.body);
+    // Also strip vendor on updates to avoid re-tying items to vendors
+    const payload: any = { ...req.body };
+    if (payload.vendor) {
+      delete payload.vendor;
+    }
+    const foodItem = await FoodItemService.update(req.params.id, payload);
     if (!foodItem) {
       res.status(404).json({ success: false, error: "Food item not found" });
       return;

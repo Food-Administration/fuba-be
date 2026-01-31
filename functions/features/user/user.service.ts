@@ -35,7 +35,8 @@ class UserService {
   }
 
   async getProfile(userId: string): Promise<UserDocument> {
-    const user = await User.findById(userId).populate('roles');
+    // Removed populate('roles') because 'roles' is not defined in the User schema
+    const user = await User.findById(userId);
     if (!user) {
       throw new CustomError('User not found', 404);
     }
@@ -90,7 +91,7 @@ class UserService {
   ): Promise<UserDocument> {
     const user = await User.findByIdAndUpdate(
       userId,
-      { profilePicture: imageUrl },
+      { profile_picture: imageUrl },
       { new: true }
     );
 
@@ -149,6 +150,57 @@ class UserService {
     }
 
     return { ...updatedUser.toObject(), _id: updatedUser._id.toString() } as unknown as UserDocument;
+  }
+
+  /**
+   * Update user profile details and optionally their profile picture in one operation.
+   */
+  async updateProfileWithPicture(
+    userId: string,
+    updateData: any,
+    file?: Express.Multer.File
+  ): Promise<UserDocument> {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new CustomError('User not found', 404);
+    }
+
+    // Handle profile picture replacement if a new file is provided
+    if (file) {
+      // Delete old profile picture from Cloudinary if exists
+      if (user.profile_picture) {
+        try {
+          const urlParts = user.profile_picture.split('/');
+          const publicIdWithExtension = urlParts.slice(-2).join('/');
+          const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '');
+          await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+        } catch (error) {
+          console.error('Failed to delete old profile picture:', error);
+        }
+      }
+
+      // Save file metadata
+      await FileService.saveFileMetadata(file, {
+        uploadedBy: userId,
+        folder: 'profiles',
+        associatedModel: 'User',
+        associatedId: userId,
+      });
+
+      // Set new profile picture URL from Cloudinary
+      updateData.profile_picture = file.path;
+    }
+
+    const updated = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updated) {
+      throw new CustomError('User not found', 404);
+    }
+
+    return { ...updated.toObject(), _id: updated._id.toString() } as unknown as UserDocument;
   }
 }
 

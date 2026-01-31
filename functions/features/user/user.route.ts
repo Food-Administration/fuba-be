@@ -14,7 +14,7 @@ declare global {
 
 import UserController from './user.controller';
 import jwtAuth from '../../middleware/jwtAuth';
-import { uploadImage } from '../../middleware/upload';
+import { uploadImage, uploadImageFlexible } from '../../middleware/upload';
 
 const router = express.Router();
 
@@ -33,6 +33,13 @@ router.patch(
   '/profile/:userId/profile-picture',
   uploadImage.single('image'),
   UserController.updateProfilePicture
+);
+
+// Update user details including optional profile picture
+router.patch(
+  '/profile/:userId/details',
+  uploadImageFlexible,
+  UserController.updateDetails
 );
 
 export default router;

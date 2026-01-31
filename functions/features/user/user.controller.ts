@@ -66,11 +66,17 @@ class UserController {
           userId,
           file
         );
-        res.status(200).json({
-          success: true,
-          data: updatedProfile,
-          message: 'Profile picture updated successfully'
-        });
+        const u: any = updatedProfile;
+        const data = {
+          id: u.id || u._id,
+          email: u.email,
+          full_name: u.full_name,
+          profile_picture: u.profile_picture,
+          first_name: u.first_name,
+          last_name: u.last_name,
+          role: u.role,
+        };
+        res.status(200).json({ success: true, data, message: 'Profile picture updated successfully' });
         return;
       }
       
@@ -88,10 +94,50 @@ class UserController {
         userId,
         imageUrl
       );
+      const u: any = updatedProfile;
+      const data = {
+        id: u.id || u._id,
+        email: u.email,
+        full_name: u.full_name,
+        profile_picture: u.profile_picture,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        role: u.role,
+      };
+      res.status(200).json({ success: true, data, message: 'Profile picture updated successfully' });
+    }
+  );
+
+  // Update user details and optionally profile picture (multipart or JSON)
+  static updateDetails = asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
+      const { userId } = req.params;
+      const updateData = req.body;
+      // Support both single-file (req.file) and any/fields (req.files as array)
+      let file = (req as any).file as Express.Multer.File | undefined;
+      const filesAny = (req as any).files as Express.Multer.File[] | undefined;
+      if (!file && Array.isArray(filesAny) && filesAny.length > 0) {
+        file = filesAny.find((f) => f?.mimetype?.startsWith('image/')) || filesAny[0];
+      }
+
+      const updated = await UserService.updateProfileWithPicture(
+        userId,
+        updateData,
+        file
+      );
+
       res.status(200).json({
         success: true,
-        data: updatedProfile,
-        message: 'Profile picture updated successfully'
+        data: {
+          id: (updated as any).id || (updated as any)._id,
+          email: (updated as any).email,
+          full_name: (updated as any).full_name,
+          profile_picture: (updated as any).profile_picture,
+          first_name: (updated as any).first_name,
+          last_name: (updated as any).last_name,
+          role: (updated as any).role,
+        },
+        message: 'User details updated successfully'
       });
     }
   );
