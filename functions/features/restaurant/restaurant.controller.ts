@@ -4,6 +4,52 @@ import asyncHandler from "../../utils/asyncHandler";
 import FoodItemService from "../food_item/food_item.service";
 
 export class RestaurantController {
+  private normalizeCategories(input: any): string[] | undefined {
+    if (input === undefined || input === null) return undefined;
+    const add = (acc: string[], val: string) => {
+      const v = String(val).trim();
+      if (v) acc.push(v);
+      return acc;
+    };
+    let values: string[] = [];
+    if (Array.isArray(input)) {
+      for (const item of input) {
+        if (typeof item === "string") {
+          if (item.trim().startsWith("[") && item.trim().endsWith("]")) {
+            try {
+              const parsed = JSON.parse(item);
+              if (Array.isArray(parsed)) values = values.concat(parsed.map(String));
+            } catch {}
+          } else if (item.includes(",")) {
+            values = values.concat(item.split(",").reduce(add, []));
+          } else {
+            values.push(item);
+          }
+        } else if (item != null) {
+          values.push(String(item));
+        }
+      }
+    } else if (typeof input === "string") {
+      const str = input.trim();
+      if (!str) return [];
+      if (str.startsWith("[") && str.endsWith("]")) {
+        try {
+          const parsed = JSON.parse(str);
+          if (Array.isArray(parsed)) values = values.concat(parsed.map(String));
+        } catch {
+          values.push(str);
+        }
+      } else if (str.includes(",")) {
+        values = values.concat(str.split(",").reduce(add, []));
+      } else {
+        values.push(str);
+      }
+    } else {
+      values.push(String(input));
+    }
+    const trimmed = values.map(v => v.trim()).filter(Boolean);
+    return Array.from(new Set(trimmed));
+  }
   /**
    * Creates a new restaurant.
    */
@@ -294,6 +340,8 @@ export class RestaurantController {
    */
   addItem = asyncHandler(async (req: Request, res: Response) => {
     const { restaurantId, itemId, item } = req.body as any;
+    const file = req.file;
+    const userId = req.user?.id;
 
     if (!restaurantId) {
       res.status(400).json({
@@ -325,10 +373,18 @@ export class RestaurantController {
     // Accept either an `item` object or top-level fields besides restaurantId/itemId
     const topLevelCandidate = (() => {
       const clone: any = { ...req.body };
-      delete clone.restaurantId;
-      delete clone.itemId;
-      delete clone.item;
-      return Object.keys(clone).length ? clone : undefined;
+      // Common field names from form-data
+      const name = clone.name ?? clone.itemName ?? clone["item name"]; // support "item name"
+      const description = clone.description ?? clone["description"];
+      const categoriesInput = clone.category ?? clone.categories ?? clone["list of categories"];
+      const priceInput = clone.price ?? clone["item price"] ?? clone["price"];
+      // If at least name and description or price exist, treat as payload
+      const candidate: any = {};
+      if (name !== undefined) candidate.name = name;
+      if (description !== undefined) candidate.description = description;
+      if (categoriesInput !== undefined) candidate.categories = categoriesInput;
+      if (priceInput !== undefined) candidate.price = priceInput;
+      return Object.keys(candidate).length ? candidate : undefined;
     })();
     const source = (item && typeof item === "object") ? item : topLevelCandidate;
     if (!source) {
@@ -343,6 +399,70 @@ export class RestaurantController {
     const payload: any = { ...source };
     // Do not allow client to set vendor directly from this endpoint
     if (payload.vendor) delete payload.vendor;
+
+    // Normalize categories
+    const normalizedCategories = this.normalizeCategories(
+      payload.category ?? payload.categories ?? payload["list of categories"]
+    );
+    if (normalizedCategories !== undefined) {
+      payload.category = normalizedCategories;
+      delete payload.categories;
+      delete payload["list of categories"];
+    }
+
+    // Coerce price: allow single numeric price or a JSON object
+    const coercePrice = (val: any) => {
+      if (val === undefined || val === null) return undefined;
+      if (typeof val === "object") {
+        const src: any = val;
+        const prem = src.premium ?? src.Premium ?? src.prem ?? src["price.premium"]; 
+        const exec = src.executive ?? src.Executive ?? src.exec ?? src["price.executive"]; 
+        const reg = src.regular ?? src.Regular ?? src.reg ?? src["price.regular"]; 
+        const toNum = (x: any) => (x === undefined ? undefined : Number(x));
+        const pr = toNum(prem);
+        const ex = toNum(exec);
+        const rg = toNum(reg);
+        if (pr !== undefined && ex !== undefined && rg !== undefined) {
+          return { premium: pr, executive: ex, regular: rg };
+        }
+        // If partial provided, fill missing with any provided numeric
+        const fallback = pr ?? ex ?? rg;
+        if (fallback !== undefined) {
+          return {
+            premium: pr ?? fallback,
+            executive: ex ?? fallback,
+            regular: rg ?? fallback,
+          };
+        }
+        return undefined;
+      }
+      if (typeof val === "string") {
+        const str = val.trim();
+        if (!str) return undefined;
+        if (str.startsWith("{") && str.endsWith("}")) {
+          try {
+            const parsed = JSON.parse(str);
+            return coercePrice(parsed);
+          } catch {
+            // fall through to numeric parse
+          }
+        }
+        const num = Number(str);
+        if (!isNaN(num)) {
+          return { premium: num, executive: num, regular: num };
+        }
+        return undefined;
+      }
+      if (typeof val === "number" && !isNaN(val)) {
+        return { premium: val, executive: val, regular: val };
+      }
+      return undefined;
+    };
+
+    const coerced = coercePrice(payload.price);
+    if (coerced) {
+      payload.price = coerced;
+    }
 
     // Basic validation for required fields
     const missing: string[] = [];
@@ -364,7 +484,9 @@ export class RestaurantController {
       return;
     }
 
-    const createdItem = await FoodItemService.create(payload);
+    const createdItem = file
+      ? await FoodItemService.createWithImage(payload, file, userId)
+      : await FoodItemService.create(payload);
     const restaurant = await RestaurantService.addItem(
       restaurantId,
       (createdItem as any)._id.toString()

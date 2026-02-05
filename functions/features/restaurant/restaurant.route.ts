@@ -32,8 +32,8 @@ router.patch("/:id/image", jwtAuth, uploadImage.single("image"), RestaurantContr
 // Update restaurant rating
 router.patch("/:id/rating", jwtAuth, RestaurantController.updateRating);
 
-// Add item to restaurant
-router.post("/items/add", jwtAuth, RestaurantController.addItem);
+// Add item to restaurant (accepts multipart/form-data, optional image file)
+router.post("/items/add", jwtAuth, uploadImage.single("image"), RestaurantController.addItem);
 
 // Remove item from restaurant
 router.post("/items/remove", jwtAuth, RestaurantController.removeItem);

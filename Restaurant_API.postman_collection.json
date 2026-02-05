@@ -475,7 +475,7 @@
         "header": [
           {
             "key": "Content-Type",
-            "value": "application/json"
+            "value": "multipart/form-data"
           },
           {
             "key": "Authorization",
@@ -483,8 +483,39 @@
           }
         ],
         "body": {
-          "mode": "raw",
-          "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"itemId\": \"{{foodItemId}}\"\n}"
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "restaurantId",
+              "value": "{{restaurantId}}",
+              "type": "text"
+            },
+            {
+              "key": "name",
+              "value": "Chicken Alfredo",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "Creamy pasta with grilled chicken",
+              "type": "text"
+            },
+            {
+              "key": "price",
+              "value": "1499",
+              "type": "text"
+            },
+            {
+              "key": "categories",
+              "value": "Pasta,Italian",
+              "type": "text"
+            },
+            {
+              "key": "image",
+              "type": "file",
+              "src": ""
+            }
+          ]
         },
         "url": {
           "raw": "http://localhost:3000/api/restaurant/items/add",
