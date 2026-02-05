@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import RestaurantService from "./restaurant.service";
 import asyncHandler from "../../utils/asyncHandler";
+import FoodItemService from "../food_item/food_item.service";
 
 export class RestaurantController {
   /**
@@ -41,24 +42,58 @@ export class RestaurantController {
       filter.name = { $regex: escapedSearch, $options: "i" };
     }
 
-    // Add promo filter if provided
-    if (typeof promo === "string" && promo.trim().length > 0) {
-      if (promo === "freeDelivery") {
-        filter["promo.freeDelivery"] = true;
-      } else if (promo === "discount") {
-        filter["promo.discountPercentage"] = { $gt: 0 };
-      } else if (promo === "any") {
-        filter.$or = [
-          { "promo.freeDelivery": true },
-          { "promo.discountPercentage": { $gt: 0 } },
-        ];
+    // Add promo filter if provided (case-insensitive and supports boolean semantics)
+    if (typeof promo !== "undefined") {
+      const raw = String(promo).trim();
+      if (raw.length > 0) {
+        const val = raw.toLowerCase();
+        if (val === "freedelivery") {
+          filter["promo.freeDelivery"] = true;
+        } else if (val === "discount") {
+          filter["promo.discountPercentage"] = { $gt: 0 };
+        } else if (val === "any" || val === "true" || val === "1") {
+          filter.$or = [
+            { "promo.freeDelivery": true },
+            { "promo.discountPercentage": { $gt: 0 } },
+          ];
+        } else if (val === "false" || val === "0") {
+          // Explicitly request restaurants with no active promos
+          filter.$and = [
+            { $or: [
+              { "promo.freeDelivery": { $exists: false } },
+              { "promo.freeDelivery": { $ne: true } }
+            ] },
+            { $or: [
+              { "promo.discountPercentage": { $exists: false } },
+              { "promo.discountPercentage": { $lte: 0 } }
+            ] }
+          ];
+        }
+        // Any other string is ignored to avoid over-filtering
+      }
+    }
+
+    // Add favorite/favourite filter if provided
+    const favouriteParam = (req.query as any).favourite ?? (req.query as any).favorite;
+    if (typeof favouriteParam !== "undefined") {
+      const favStr = String(favouriteParam).trim().toLowerCase();
+      if (["true", "1"].includes(favStr)) {
+        filter.isFavorite = true;
+      } else if (["false", "0"].includes(favStr)) {
+        filter.isFavorite = false;
       }
     }
 
     // Parse user location if provided (latitude,longitude,radius[km])
     let userLocation: { latitude: number; longitude: number; radiusKm?: number } | undefined;
     if (typeof mapLocation === "string" && mapLocation.trim().length > 0) {
-      const locationParts = mapLocation.split(',');
+      // Some clients may accidentally send `mapLocation=?mapLocation=lat,long,radius`
+      // Normalize that here by stripping a leading `?mapLocation=` if present
+      let loc = mapLocation.trim();
+      if (loc.startsWith("?mapLocation=")) {
+        loc = loc.replace(/^\?mapLocation=/, "");
+      }
+      const locationParts = loc.split(',');
       if (locationParts.length >= 2) {
         const latitude = parseFloat(locationParts[0]);
         const longitude = parseFloat(locationParts[1]);
@@ -258,29 +293,94 @@ export class RestaurantController {
    * Adds a food item to a restaurant.
    */
   addItem = asyncHandler(async (req: Request, res: Response) => {
-    const { restaurantId, itemId } = req.body;
+    const { restaurantId, itemId, item } = req.body as any;
 
-    if (!restaurantId || !itemId) {
+    if (!restaurantId) {
       res.status(400).json({
         success: false,
-        error: "restaurantId and itemId are required",
+        error: "restaurantId is required",
       });
       return;
     }
 
-    const restaurant = await RestaurantService.addItem(restaurantId, itemId);
+    // Path A: Existing itemId provided -> attempt to link directly
+    if (itemId && String(itemId).trim().length > 0) {
+      const restaurant = await RestaurantService.addItem(restaurantId, itemId);
+      if (!restaurant) {
+        res.status(404).json({
+          success: false,
+          error: "Restaurant or item not found",
+        });
+        return;
+      }
+      res.status(200).json({
+        success: true,
+        data: restaurant,
+        message: "Item added to restaurant",
+      });
+      return;
+    }
+
+    // Path B: Create a new FoodItem from payload and link to restaurant
+    // Accept either an `item` object or top-level fields besides restaurantId/itemId
+    const topLevelCandidate = (() => {
+      const clone: any = { ...req.body };
+      delete clone.restaurantId;
+      delete clone.itemId;
+      delete clone.item;
+      return Object.keys(clone).length ? clone : undefined;
+    })();
+    const source = (item && typeof item === "object") ? item : topLevelCandidate;
+    if (!source) {
+      res.status(400).json({
+        success: false,
+        error: "Provide either a valid itemId or an item payload",
+      });
+      return;
+    }
+
+    // Prepare payload: allow restaurants to define their own items.
+    const payload: any = { ...source };
+    // Do not allow client to set vendor directly from this endpoint
+    if (payload.vendor) delete payload.vendor;
+
+    // Basic validation for required fields
+    const missing: string[] = [];
+    if (!payload.name) missing.push("name");
+    if (!payload.description) missing.push("description");
+    if (!payload.price || typeof payload.price !== "object") {
+      missing.push("price.premium, price.executive, price.regular");
+    } else {
+      const p = payload.price;
+      if (p.premium === undefined) missing.push("price.premium");
+      if (p.executive === undefined) missing.push("price.executive");
+      if (p.regular === undefined) missing.push("price.regular");
+    }
+    if (missing.length) {
+      res.status(400).json({
+        success: false,
+        error: `Missing required fields: ${missing.join(", ")}`,
+      });
+      return;
+    }
+
+    const createdItem = await FoodItemService.create(payload);
+    const restaurant = await RestaurantService.addItem(
+      restaurantId,
+      (createdItem as any)._id.toString()
+    );
     if (!restaurant) {
       res.status(404).json({
         success: false,
-        error: "Restaurant or item not found",
+        error: "Restaurant not found",
       });
       return;
     }
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       data: restaurant,
-      message: "Item added to restaurant",
+      message: "New item created and added to restaurant",
     });
   });
 

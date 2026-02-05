@@ -69,35 +69,45 @@ export class FoodItemController {
   });
 
   get = asyncHandler(async (req: Request, res: Response) => {
-  const { offset = '0', limit = '10', search } = req.query;
+    const { offset = "0", limit = "10", search, category, categories } = req.query;
 
-  // Parse query parameters
-  const numericOffset = parseInt(offset as string, 10) || 0;
-  const numericLimit = parseInt(limit as string, 10) || 10;
+    // Parse query parameters
+    const numericOffset = parseInt(offset as string, 10) || 0;
+    const numericLimit = parseInt(limit as string, 10) || 10;
 
-  // Initialize filter object
-  const filter: any = {};
+    // Initialize filter object
+    const filter: any = {};
 
-  // Add search condition if search is a valid, non-empty string
-  if (typeof search === 'string' && search.trim().length > 0) {
-    const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    filter.name = { $regex: escapedSearch, $options: 'i' };
-  }
+    const escapeRegex = (value: string) =>
+      value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-  const {
-    foodItems,
-    total,
-  } = await FoodItemService.get(filter, {
-    offset: numericOffset,
-    limit: numericLimit,
+    // Add search condition if search is a valid, non-empty string
+    if (typeof search === "string" && search.trim().length > 0) {
+      const escapedSearch = escapeRegex(search.trim());
+      filter.name = { $regex: escapedSearch, $options: "i" };
+    }
+
+    // Add category filter (supports category or categories query params)
+    const normalizedCategories = this.normalizeCategories(category ?? categories);
+    if (normalizedCategories && normalizedCategories.length > 0) {
+      filter.category = {
+        $in: normalizedCategories.map(
+          value => new RegExp(`^${escapeRegex(value)}$`, "i")
+        ),
+      };
+    }
+
+    const { foodItems, total } = await FoodItemService.get(filter, {
+      offset: numericOffset,
+      limit: numericLimit,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: foodItems,
+      meta: { total, offset: numericOffset, limit: numericLimit },
+    });
   });
-
-  res.status(200).json({
-    success: true,
-    data: foodItems,
-    meta: { total, offset: numericOffset, limit: numericLimit },
-  });
-});
 
   getById = asyncHandler(async (req: Request, res: Response) => {
     const foodItem = await FoodItemService.getById(req.params.id);

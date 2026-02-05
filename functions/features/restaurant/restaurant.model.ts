@@ -54,7 +54,8 @@ const RestaurantSchema = new Schema<IRestaurant>(
       },
       coordinates: {
         type: [Number], // [longitude, latitude]
-        default: [0, 0]
+        // Default to Port Harcourt, Nigeria (lon, lat)
+        default: [7.0498, 4.8156]
       }
     },
   },

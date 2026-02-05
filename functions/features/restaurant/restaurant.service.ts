@@ -143,17 +143,29 @@ export class RestaurantService {
             },
           ];
 
-          // Promo filters
+          // Promo filters (case-insensitive; supports boolean semantics)
           if (options.promo) {
             const promoMatch: any = {};
-            if (options.promo === "freeDelivery") {
+            const p = options.promo.trim().toLowerCase();
+            if (p === "freedelivery") {
               promoMatch["promo.freeDelivery"] = true;
-            } else if (options.promo === "discount") {
+            } else if (p === "discount") {
               promoMatch["promo.discountPercentage"] = { $gt: 0 };
-            } else if (options.promo === "any") {
+            } else if (p === "any" || p === "true" || p === "1") {
               promoMatch.$or = [
                 { "promo.freeDelivery": true },
                 { "promo.discountPercentage": { $gt: 0 } },
+              ];
+            } else if (p === "false" || p === "0") {
+              promoMatch.$and = [
+                { $or: [
+                  { "promo.freeDelivery": { $exists: false } },
+                  { "promo.freeDelivery": { $ne: true } }
+                ] },
+                { $or: [
+                  { "promo.discountPercentage": { $exists: false } },
+                  { "promo.discountPercentage": { $lte: 0 } }
+                ] }
               ];
             }
             if (Object.keys(promoMatch).length) pipeline.push({ $match: promoMatch });
@@ -188,14 +200,27 @@ export class RestaurantService {
     const query: any = { _id: id };
 
     if (options.promo) {
-      if (options.promo === "freeDelivery") {
+      const p = options.promo.trim().toLowerCase();
+      if (p === "freedelivery") {
         query["promo.freeDelivery"] = true;
-      } else if (options.promo === "discount") {
+      } else if (p === "discount") {
         query["promo.discountPercentage"] = { $gt: 0 };
-      } else if (options.promo === "any") {
+      } else if (p === "any" || p === "true" || p === "1") {
         query.$or = [
           { "promo.freeDelivery": true },
           { "promo.discountPercentage": { $gt: 0 } },
+        ];
+        query._id = id;
+      } else if (p === "false" || p === "0") {
+        query.$and = [
+          { $or: [
+            { "promo.freeDelivery": { $exists: false } },
+            { "promo.freeDelivery": { $ne: true } }
+          ] },
+          { $or: [
+            { "promo.discountPercentage": { $exists: false } },
+            { "promo.discountPercentage": { $lte: 0 } }
+          ] }
         ];
         query._id = id;
       }
