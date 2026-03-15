@@ -3,7 +3,13 @@ import { Schema, model, Document, Types } from 'mongoose';
 export enum Role {
     Consumer = 'consumer',
     Vendor = 'vendor',
+    LuxuryRestaurant = 'luxury_restaurant',
     Admin = 'admin'
+}
+
+export enum ServiceType {
+    FoodVendor = 'food_vendor',
+    LuxuryRestaurant = 'luxury_restaurant'
 }
 
 export interface CreateUserDto {
@@ -14,12 +20,13 @@ export interface CreateUserDto {
 }
 
 export interface UserDocument extends Document {
-    _id: Types.ObjectId; // Updated to use Types.ObjectId
+    _id: Types.ObjectId;
     email: string;
     password: string;
     username?: string;
     phone_number: string;
     role: Role;
+    service_type?: ServiceType;
     first_name: string;
     last_name: string;
     full_name: string;
@@ -49,6 +56,7 @@ const UserSchema = new Schema<UserDocument>({
     username: { type: String },
     phone_number: { type: String },
     role: { type: String, enum: Object.values(Role), required: true },
+    service_type: { type: String, enum: Object.values(ServiceType) },
     first_name: { type: String },
     last_name: { type: String },
     profile_picture: { type: String },

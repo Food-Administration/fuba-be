@@ -1,4 +1,6 @@
 import { UserDocument } from "../user/user.model";
+import { VendorProfileDocument } from "../vendor/vendor.model";
+import { RestaurantApplicationDocument } from "./restaurant_application.model";
 
 export interface SignupResponse {
   message: string;
@@ -30,4 +32,32 @@ export interface MessageResponse {
   success?: boolean;
   token?: string;
   user?: Omit<UserDocument, 'password' | 'otp'>;
+}
+
+export interface VendorCheckAreaResponse {
+  available: boolean;
+  message: string;
+}
+
+export interface VendorRegisterResponse {
+  message: string;
+  success: boolean;
+  token: string;
+  user: Omit<UserDocument, 'password' | 'otp'>;
+  vendor_profile: VendorProfileDocument;
+}
+
+export interface NafdacRequestResponse {
+  message: string;
+  success: boolean;
+  payment_url?: string;
+  payment_reference?: string;
+}
+
+export interface RestaurantRegisterResponse {
+  message: string;
+  success: boolean;
+  token: string;
+  user: Omit<UserDocument, 'password' | 'otp'>;
+  application: RestaurantApplicationDocument;
 }

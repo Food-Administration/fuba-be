@@ -1,0 +1,907 @@
+{
+	"info": {
+		"_postman_id": "fuba-auth-api-collection",
+		"name": "Fuba Authentication API",
+		"description": "Complete authentication API for Fuba - Customer, Food Vendor, and Luxury Restaurant flows.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "verification_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "test_email",
+			"value": "test@example.com",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Customer Auth",
+			"description": "Normal customer signup and authentication flow",
+			"item": [
+				{
+					"name": "1. Initiate Email Verification",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Verification initiated', function() {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{test_email}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/initiate-verification",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "initiate-verification"]
+						},
+						"description": "Send a 4-digit OTP to the customer's email to start registration."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Verify Email OTP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('verification_token', jsonData.verification_token);",
+									"    pm.test('Email verified', function() {",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"        pm.expect(jsonData.verification_token).to.be.a('string');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{test_email}}\",\n    \"otp\": \"1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/verify-email",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "verify-email"]
+						},
+						"description": "Verify the 4-digit OTP sent to the customer's email."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Complete Registration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', jsonData.token);",
+									"    pm.test('Registration completed', function() {",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"        pm.expect(jsonData.token).to.be.a('string');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"verification_token\": \"{{verification_token}}\",\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"phone_number\": \"08012345678\",\n    \"password\": \"SecurePass123!\",\n    \"role\": \"consumer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Complete customer registration with personal details after email verification."
+					},
+					"response": []
+				},
+				{
+					"name": "Resend Verification Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{test_email}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/resend-verification-email",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "resend-verification-email"]
+						},
+						"description": "Resend the verification OTP to the user's email."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"description": "Login flows - email/password, Google, fingerprint",
+			"item": [
+				{
+					"name": "Login with Email & Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', jsonData.token);",
+									"    pm.test('Login successful', function() {",
+									"        pm.expect(jsonData.token).to.be.a('string');",
+									"        pm.expect(jsonData.userId).to.be.a('string');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{test_email}}\",\n    \"password\": \"SecurePass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login with email/phone and password."
+					},
+					"response": []
+				},
+				{
+					"name": "Google Sign In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idToken\": \"your_google_id_token_here\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/google",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "google"]
+						},
+						"description": "Sign up or sign in using Google OAuth. Pass the Firebase Google ID token."
+					},
+					"response": []
+				},
+				{
+					"name": "Google Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idToken\": \"your_google_id_token_here\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/google-login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "google-login"]
+						},
+						"description": "Login using Google OAuth for returning users."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Password Reset",
+			"description": "Password reset flow with OTP verification",
+			"item": [
+				{
+					"name": "1. Request OTP (Password Reset)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{test_email}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/request-otp",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "request-otp"]
+						},
+						"description": "Request a 4-digit OTP for password reset. Sent to email."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Verify OTP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{test_email}}\",\n    \"otp\": \"1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/verify-otp",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "verify-otp"]
+						},
+						"description": "Verify the OTP sent for password reset."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Set New Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', jsonData.token);",
+									"    pm.test('Password reset successful', function() {",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"        pm.expect(jsonData.token).to.be.a('string');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{test_email}}\",\n    \"new_password\": \"NewSecurePass123!\",\n    \"confirm_password\": \"NewSecurePass123!\",\n    \"otp\": \"1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/reset-password",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "reset-password"]
+						},
+						"description": "Set a new password after OTP verification. Returns a new auth token."
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password (Authenticated)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currentPassword\": \"SecurePass123!\",\n    \"newPassword\": \"NewSecurePass456!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/change-password",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "change-password"]
+						},
+						"description": "Change password while authenticated. Requires current password."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Food Vendor Auth",
+			"description": "Food Vendor signup flow - area check, waitlist, verification, registration, NAFDAC seal",
+			"item": [
+				{
+					"name": "1. Check Area Availability",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"state\": \"Lagos\",\n    \"brand_address\": \"123 Victoria Island, Lagos\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/vendor/check-area",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "vendor", "check-area"]
+						},
+						"description": "Check if Fuba service is available in the vendor's area. Returns available: true/false."
+					},
+					"response": []
+				},
+				{
+					"name": "2a. Join Waitlist (If Area Unavailable)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"vendor@example.com\",\n    \"phone_number\": \"08098765432\",\n    \"state\": \"Kano\",\n    \"brand_address\": \"45 Main Street, Kano\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/vendor/waitlist",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "vendor", "waitlist"]
+						},
+						"description": "Join the waitlist to be notified when Fuba is available in the vendor's area."
+					},
+					"response": []
+				},
+				{
+					"name": "2b. Initiate Vendor Verification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"vendor@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/vendor/initiate-verification",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "vendor", "initiate-verification"]
+						},
+						"description": "Send a 4-digit OTP to the vendor's email to start registration."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Verify Vendor OTP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('verification_token', jsonData.verification_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"vendor@example.com\",\n    \"otp\": \"1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/vendor/verify",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "vendor", "verify"]
+						},
+						"description": "Verify the 4-digit OTP sent to the vendor's email."
+					},
+					"response": []
+				},
+				{
+					"name": "4. Complete Vendor Registration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', jsonData.token);",
+									"    pm.test('Vendor registration completed', function() {",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"        pm.expect(jsonData.vendor_profile).to.be.an('object');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"verification_token\": \"{{verification_token}}\",\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Chef\",\n    \"phone_number\": \"08098765432\",\n    \"password\": \"VendorPass123!\",\n    \"brand_name\": \"Jane's Kitchen\",\n    \"brand_description\": \"Authentic Nigerian meals prepared with love\",\n    \"state\": \"Lagos\",\n    \"brand_address\": \"123 Victoria Island, Lagos\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/vendor/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "vendor", "register"]
+						},
+						"description": "Complete vendor registration with personal details, brand info. Brand image and cover image can be uploaded via user profile update later."
+					},
+					"response": []
+				},
+				{
+					"name": "5. Request NAFDAC Seal (Authenticated)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"brand_name\": \"Jane's Kitchen\",\n    \"business_email\": \"jane@janeskitchen.com\",\n    \"brand_address\": \"123 Victoria Island, Lagos\",\n    \"brand_phone\": \"08098765432\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/vendor/nafdac-request",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "vendor", "nafdac-request"]
+						},
+						"description": "Request NAFDAC seal. Initializes Paystack payment. Returns payment_url to redirect user for payment."
+					},
+					"response": []
+				},
+				{
+					"name": "6. Verify NAFDAC Payment (Authenticated)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payment_reference\": \"nafdac_userId_timestamp\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/vendor/nafdac-verify-payment",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "vendor", "nafdac-verify-payment"]
+						},
+						"description": "Verify NAFDAC seal payment via Paystack after user completes payment."
+					},
+					"response": []
+				},
+				{
+					"name": "7. Upload NAFDAC Seal (Authenticated)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "brand_name",
+									"value": "Jane's Kitchen",
+									"type": "text"
+								},
+								{
+									"key": "brand_email",
+									"value": "jane@janeskitchen.com",
+									"type": "text"
+								},
+								{
+									"key": "brand_address",
+									"value": "123 Victoria Island, Lagos",
+									"type": "text"
+								},
+								{
+									"key": "nafdac_seal",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/vendor/nafdac-upload",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "vendor", "nafdac-upload"]
+						},
+						"description": "Upload NAFDAC seal document after payment verification. File field: nafdac_seal (PDF/image)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Luxury Restaurant Auth",
+			"description": "Luxury Restaurant signup flow - verification, registration with documents for review",
+			"item": [
+				{
+					"name": "1. Initiate Restaurant Verification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"restaurant@luxury.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/restaurant/initiate-verification",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "restaurant", "initiate-verification"]
+						},
+						"description": "Send a 4-digit OTP to the restaurant owner's email to start registration."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Verify Restaurant OTP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('verification_token', jsonData.verification_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"restaurant@luxury.com\",\n    \"otp\": \"1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/restaurant/verify",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "restaurant", "verify"]
+						},
+						"description": "Verify the 4-digit OTP sent to the restaurant owner's email."
+					},
+					"response": []
+				},
+				{
+					"name": "Resend Restaurant OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"restaurant@luxury.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/restaurant/resend-otp",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "restaurant", "resend-otp"]
+						},
+						"description": "Resend the verification OTP if the previous one expired."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Complete Restaurant Registration (Multipart)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', jsonData.token);",
+									"    pm.test('Restaurant registration submitted', function() {",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"        pm.expect(jsonData.application.status).to.eql('pending_review');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "verification_token",
+									"value": "{{verification_token}}",
+									"type": "text"
+								},
+								{
+									"key": "first_name",
+									"value": "Michael",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Restaurant",
+									"type": "text"
+								},
+								{
+									"key": "phone_number",
+									"value": "08011112222",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "RestaurantPass123!",
+									"type": "text"
+								},
+								{
+									"key": "brand_name",
+									"value": "Luxury Bites",
+									"type": "text"
+								},
+								{
+									"key": "brand_category",
+									"value": "Fine Dining",
+									"type": "text"
+								},
+								{
+									"key": "brand_address",
+									"value": "456 Ikoyi Drive, Lagos",
+									"type": "text"
+								},
+								{
+									"key": "operating_hours",
+									"value": "[{\"day\":\"Monday\",\"open_time\":\"09:00\",\"close_time\":\"22:00\"},{\"day\":\"Tuesday\",\"open_time\":\"09:00\",\"close_time\":\"22:00\"},{\"day\":\"Wednesday\",\"open_time\":\"09:00\",\"close_time\":\"22:00\"},{\"day\":\"Thursday\",\"open_time\":\"09:00\",\"close_time\":\"22:00\"},{\"day\":\"Friday\",\"open_time\":\"09:00\",\"close_time\":\"23:00\"},{\"day\":\"Saturday\",\"open_time\":\"10:00\",\"close_time\":\"23:00\"},{\"day\":\"Sunday\",\"open_time\":\"12:00\",\"close_time\":\"21:00\"}]",
+									"type": "text"
+								},
+								{
+									"key": "delivery_type",
+									"value": "both",
+									"type": "text"
+								},
+								{
+									"key": "brand_registration_number",
+									"value": "RC-123456",
+									"type": "text"
+								},
+								{
+									"key": "brand_logo",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "cover_image",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "cac_certificate",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/restaurant/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "restaurant", "register"]
+						},
+						"description": "Complete luxury restaurant registration with all details and file uploads. Submitted for review. File fields: brand_logo (image), cover_image (image), cac_certificate (PDF/image). operating_hours is a JSON string array."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
