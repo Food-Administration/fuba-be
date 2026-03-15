@@ -1,0 +1,144 @@
+{
+  "info": {
+    "_postman_id": "fuba-restaurant-auth-collection",
+    "name": "Fuba Luxury Restaurant Authentication",
+    "description": "Luxury restaurant verification, registration (multipart), plus login/reset flows.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "auth_token", "value": "", "type": "string" },
+    { "key": "verification_token", "value": "", "type": "string" },
+    { "key": "restaurant_email", "value": "restaurant@luxury.com", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Luxury Restaurant Auth",
+      "item": [
+        {
+          "name": "1. Initiate Restaurant Verification",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{restaurant_email}}\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/restaurant/initiate-verification","host":["{{base_url}}"],"path":["auth","restaurant","initiate-verification"]},
+            "description":"Send a 4-digit OTP to start registration."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Verify Restaurant OTP",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('verification_token', json.verification_token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{restaurant_email}}\",\n  \"otp\": \"1234\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/restaurant/verify","host":["{{base_url}}"],"path":["auth","restaurant","verify"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Restaurant OTP",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{restaurant_email}}\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/restaurant/resend-otp","host":["{{base_url}}"],"path":["auth","restaurant","resend-otp"]}
+          },
+          "response": []
+        },
+        {
+          "name": "3. Complete Restaurant Registration (Multipart)",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 201) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {"mode":"formdata","formdata":[
+              {"key":"verification_token","value":"{{verification_token}}","type":"text"},
+              {"key":"first_name","value":"Michael","type":"text"},
+              {"key":"last_name","value":"Restaurant","type":"text"},
+              {"key":"phone_number","value":"08011112222","type":"text"},
+              {"key":"password","value":"RestaurantPass123!","type":"text"},
+              {"key":"brand_name","value":"Luxury Bites","type":"text"},
+              {"key":"brand_category","value":"Fine Dining","type":"text"},
+              {"key":"brand_address","value":"456 Ikoyi Drive, Lagos","type":"text"},
+              {"key":"operating_hours","value":"[{\\\"day\\\":\\\"Monday\\\",\\\"open_time\\\":\\\"09:00\\\",\\\"close_time\\\":\\\"22:00\\\"}]","type":"text"},
+              {"key":"delivery_type","value":"both","type":"text"},
+              {"key":"brand_registration_number","value":"RC-123456","type":"text"},
+              {"key":"brand_logo","type":"file","src":""},
+              {"key":"cover_image","type":"file","src":""},
+              {"key":"cac_certificate","type":"file","src":""}
+            ]},
+            "url": {"raw":"{{base_url}}/auth/restaurant/register","host":["{{base_url}}"],"path":["auth","restaurant","register"]},
+            "description":"Complete luxury restaurant registration with files."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "item": [
+        {
+          "name": "Login with Email & Password",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{restaurant_email}}\",\n  \"password\": \"RestaurantPass123!\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/login","host":["{{base_url}}"],"path":["auth","login"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Password Reset",
+      "item": [
+        {
+          "name": "1. Request OTP",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{restaurant_email}}\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/request-otp","host":["{{base_url}}"],"path":["auth","request-otp"]}
+          },
+          "response": []
+        },
+        {
+          "name": "2. Verify OTP",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{restaurant_email}}\",\n  \"otp\": \"1234\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/verify-otp","host":["{{base_url}}"],"path":["auth","verify-otp"]}
+          },
+          "response": []
+        },
+        {
+          "name": "3. Set New Password",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{restaurant_email}}\",\n  \"new_password\": \"NewRestaurantPass123!\",\n  \"confirm_password\": \"NewRestaurantPass123!\",\n  \"otp\": \"1234\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/reset-password","host":["{{base_url}}"],"path":["auth","reset-password"]}
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

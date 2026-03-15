@@ -164,7 +164,9 @@ class VendorAuthService {
         brand_name: string,
         brand_description?: string,
         state?: string,
-        brand_address?: string
+        brand_address?: string,
+        brand_logo_url?: string,
+        brand_cover_url?: string
     ): Promise<{ user: UserDocument; token: string; vendor_profile: VendorProfileDocument }> {
         let decoded: any;
         try {
@@ -203,7 +205,9 @@ class VendorAuthService {
             brand_description,
             state,
             brand_address,
-            business_email: email
+            business_email: email,
+            brand_image: brand_logo_url,
+            brand_cover_image: brand_cover_url
         });
 
         const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {

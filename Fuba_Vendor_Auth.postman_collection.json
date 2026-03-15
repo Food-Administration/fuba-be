@@ -1,0 +1,189 @@
+{
+  "info": {
+    "_postman_id": "fuba-vendor-auth-collection",
+    "name": "Fuba Food Vendor Authentication",
+    "description": "Food vendor area check, waitlist, verification, registration, and NAFDAC seal flows, plus login/reset.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "auth_token", "value": "", "type": "string" },
+    { "key": "verification_token", "value": "", "type": "string" },
+    { "key": "vendor_email", "value": "vendor@example.com", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Food Vendor Auth",
+      "item": [
+        {
+          "name": "1. Check Area Availability",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"state\": \"Lagos\",\n  \"brand_address\": \"123 Victoria Island, Lagos\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/vendor/check-area","host":["{{base_url}}"],"path":["auth","vendor","check-area"]},
+            "description": "Check if Fuba is available in vendor's state."
+          },
+          "response": []
+        },
+        {
+          "name": "2a. Join Waitlist (Unavailable Area)",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"phone_number\": \"08098765432\",\n  \"state\": \"Kano\",\n  \"brand_address\": \"45 Main Street, Kano\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/vendor/waitlist","host":["{{base_url}}"],"path":["auth","vendor","waitlist"]}
+          },
+          "response": []
+        },
+        {
+          "name": "2b. Initiate Vendor Verification",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/vendor/initiate-verification","host":["{{base_url}}"],"path":["auth","vendor","initiate-verification"]}
+          },
+          "response": []
+        },
+        {
+          "name": "3. Verify Vendor OTP",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('verification_token', json.verification_token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"otp\": \"1234\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/vendor/verify","host":["{{base_url}}"],"path":["auth","vendor","verify"]}
+          },
+          "response": []
+        },
+        {
+          "name": "4. Complete Vendor Registration (Multipart)",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 201) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key":"verification_token","value":"{{verification_token}}","type":"text"},
+                {"key":"first_name","value":"Jane","type":"text"},
+                {"key":"last_name","value":"Chef","type":"text"},
+                {"key":"phone_number","value":"08098765432","type":"text"},
+                {"key":"password","value":"VendorPass123!","type":"text"},
+                {"key":"brand_name","value":"Jane's Kitchen","type":"text"},
+                {"key":"brand_description","value":"Authentic Nigerian meals","type":"text"},
+                {"key":"state","value":"Lagos","type":"text"},
+                {"key":"brand_address","value":"123 Victoria Island, Lagos","type":"text"},
+                {"key":"brand_logo","type":"file","src":""},
+                {"key":"brand_cover","type":"file","src":""}
+              ]
+            },
+            "url": {"raw":"{{base_url}}/auth/vendor/register","host":["{{base_url}}"],"path":["auth","vendor","register"]}
+          },
+          "response": []
+        },
+        {
+          "name": "5. Request NAFDAC Seal (Auth)",
+          "request": {
+            "auth": {"type":"bearer","bearer":[{"key":"token","value":"{{auth_token}}","type":"string"}]},
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"brand_name\": \"Jane's Kitchen\",\n  \"business_email\": \"jane@janeskitchen.com\",\n  \"brand_address\": \"123 Victoria Island, Lagos\",\n  \"brand_phone\": \"08098765432\"\n}"},
+            "url": {"raw":"{{base_url}}/auth/vendor/nafdac-request","host":["{{base_url}}"],"path":["auth","vendor","nafdac-request"]}
+          },
+          "response": []
+        },
+        {
+          "name": "6. Verify NAFDAC Payment (Auth)",
+          "request": {
+            "auth": {"type":"bearer","bearer":[{"key":"token","value":"{{auth_token}}","type":"string"}]},
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"payment_reference\": \"nafdac_userId_timestamp\"\n}"},
+            "url": {"raw":"{{base_url}}/auth/vendor/nafdac-verify-payment","host":["{{base_url}}"],"path":["auth","vendor","nafdac-verify-payment"]}
+          },
+          "response": []
+        },
+        {
+          "name": "7. Upload NAFDAC Seal (Auth)",
+          "request": {
+            "auth": {"type":"bearer","bearer":[{"key":"token","value":"{{auth_token}}","type":"string"}]},
+            "method": "POST",
+            "header": [],
+            "body": {"mode":"formdata","formdata":[
+              {"key":"brand_name","value":"Jane's Kitchen","type":"text"},
+              {"key":"brand_email","value":"jane@janeskitchen.com","type":"text"},
+              {"key":"brand_address","value":"123 Victoria Island, Lagos","type":"text"},
+              {"key":"nafdac_seal","type":"file","src":""}
+            ]},
+            "url": {"raw":"{{base_url}}/auth/vendor/nafdac-upload","host":["{{base_url}}"],"path":["auth","vendor","nafdac-upload"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "item": [
+        {
+          "name": "Login with Email & Password",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"password\": \"VendorPass123!\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/login","host":["{{base_url}}"],"path":["auth","login"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Password Reset",
+      "item": [
+        {
+          "name": "1. Request OTP",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/request-otp","host":["{{base_url}}"],"path":["auth","request-otp"]}
+          },
+          "response": []
+        },
+        {
+          "name": "2. Verify OTP",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"otp\": \"1234\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/verify-otp","host":["{{base_url}}"],"path":["auth","verify-otp"]}
+          },
+          "response": []
+        },
+        {
+          "name": "3. Set New Password",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"1234\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/reset-password","host":["{{base_url}}"],"path":["auth","reset-password"]}
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -27,7 +27,14 @@ router.post('/vendor/check-area', VendorAuthController.checkArea);
 router.post('/vendor/waitlist', VendorAuthController.joinWaitlist);
 router.post('/vendor/initiate-verification', VendorAuthController.initiateVerification);
 router.post('/vendor/verify', VendorAuthController.verifyOtp);
-router.post('/vendor/register', VendorAuthController.register);
+router.post(
+    '/vendor/register',
+    upload.fields([
+        { name: 'brand_logo', maxCount: 1 },
+        { name: 'brand_cover', maxCount: 1 }
+    ]),
+    VendorAuthController.register
+);
 router.post('/vendor/nafdac-request', jwtAuth, VendorAuthController.requestNafdacSeal);
 router.post('/vendor/nafdac-verify-payment', jwtAuth, VendorAuthController.verifyNafdacPayment);
 router.post(

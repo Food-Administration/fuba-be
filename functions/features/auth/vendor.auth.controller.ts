@@ -59,10 +59,35 @@ class VendorAuthController {
                 brand_description, state, brand_address
             } = req.body;
 
+            // Handle optional file uploads: brand_logo, brand_cover
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+            let brand_logo_url: string | undefined;
+            let brand_cover_url: string | undefined;
+
+            if (files) {
+                if (files['brand_logo']?.[0]) {
+                    const file = files['brand_logo'][0];
+                    brand_logo_url = file.path;
+                    await FileService.saveFileMetadata(file, {
+                        folder: 'vendor-logos',
+                        associatedModel: 'VendorProfile'
+                    });
+                }
+                if (files['brand_cover']?.[0]) {
+                    const file = files['brand_cover'][0];
+                    brand_cover_url = file.path;
+                    await FileService.saveFileMetadata(file, {
+                        folder: 'vendor-covers',
+                        associatedModel: 'VendorProfile'
+                    });
+                }
+            }
+
             const { user, token, vendor_profile } = await VendorAuthService.completeRegistration(
                 verification_token, first_name, last_name,
                 phone_number, password, brand_name,
-                brand_description, state, brand_address
+                brand_description, state, brand_address,
+                brand_logo_url, brand_cover_url
             );
 
             res.status(201).json({

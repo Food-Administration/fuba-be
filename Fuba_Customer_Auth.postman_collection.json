@@ -1,0 +1,192 @@
+{
+  "info": {
+    "_postman_id": "fuba-customer-auth-collection",
+    "name": "Fuba Customer Authentication",
+    "description": "Customer signup, email verification, login, and password reset flows.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "auth_token", "value": "", "type": "string" },
+    { "key": "verification_token", "value": "", "type": "string" },
+    { "key": "test_email", "value": "customer@example.com", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Customer Auth",
+      "item": [
+        {
+          "name": "1. Initiate Email Verification",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{test_email}}\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/initiate-verification", "host": ["{{base_url}}"], "path": ["auth","initiate-verification"] },
+            "description": "Send a 4-digit OTP to the customer's email to start registration."
+          },
+          "response": []
+        },
+        {
+          "name": "2. Verify Email OTP",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "if (pm.response.code === 200) {",
+                "  const json = pm.response.json();",
+                "  pm.collectionVariables.set('verification_token', json.verification_token);",
+                "}"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"otp\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/verify-email", "host": ["{{base_url}}"], "path": ["auth","verify-email"] },
+            "description": "Verify the 4-digit OTP sent to the customer's email."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Complete Registration",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "if (pm.response.code === 201) {",
+                "  const json = pm.response.json();",
+                "  pm.collectionVariables.set('auth_token', json.token);",
+                "}"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"verification_token\": \"{{verification_token}}\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone_number\": \"08012345678\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"consumer\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth","register"] },
+            "description": "Complete customer registration after verification."
+          },
+          "response": []
+        },
+        {
+          "name": "Resend Verification Email",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{test_email}}\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/resend-verification-email", "host": ["{{base_url}}"], "path": ["auth","resend-verification-email"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "item": [
+        {
+          "name": "Login with Email & Password",
+          "event": [{
+            "listen": "test",
+            "script": {"exec": [
+              "if (pm.response.code === 200) {",
+              "  const json = pm.response.json();",
+              "  pm.collectionVariables.set('auth_token', json.token);",
+              "}"
+            ], "type": "text/javascript"}
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"SecurePass123!\"\n}"},
+            "url": {"raw":"{{base_url}}/auth/login","host":["{{base_url}}"],"path":["auth","login"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Google Sign In",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"idToken\": \"your_google_id_token_here\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/google","host":["{{base_url}}"],"path":["auth","google"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Google Login",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"idToken\": \"your_google_id_token_here\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/google-login","host":["{{base_url}}"],"path":["auth","google-login"]}
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Password Reset",
+      "item": [
+        {
+          "name": "1. Request OTP",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{test_email}}\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/request-otp","host":["{{base_url}}"],"path":["auth","request-otp"]}
+          },
+          "response": []
+        },
+        {
+          "name": "2. Verify OTP",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{test_email}}\",\n  \"otp\": \"1234\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/verify-otp","host":["{{base_url}}"],"path":["auth","verify-otp"]}
+          },
+          "response": []
+        },
+        {
+          "name": "3. Set New Password",
+          "event": [{"listen":"test","script":{"exec":[
+            "if (pm.response.code === 200) {",
+            "  const json = pm.response.json();",
+            "  pm.collectionVariables.set('auth_token', json.token);",
+            "}"
+          ],"type":"text/javascript"}}],
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{test_email}}\",\n  \"new_password\": \"NewSecurePass123!\",\n  \"confirm_password\": \"NewSecurePass123!\",\n  \"otp\": \"1234\"\n}"},
+            "url":{"raw":"{{base_url}}/auth/reset-password","host":["{{base_url}}"],"path":["auth","reset-password"]}
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password (Authenticated)",
+          "request": {
+            "auth": {"type":"bearer","bearer":[{"key":"token","value":"{{auth_token}}","type":"string"}]},
+            "method": "POST",
+            "header": [{"key":"Content-Type","value":"application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"currentPassword\": \"SecurePass123!\",\n  \"newPassword\": \"NewSecurePass456!\"\n}"},
+            "url": {"raw":"{{base_url}}/auth/change-password","host":["{{base_url}}"],"path":["auth","change-password"]}
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
