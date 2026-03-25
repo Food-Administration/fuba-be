@@ -12,9 +12,14 @@ export interface SignupResponse {
 }
 
 export interface LoginResponse {
-  token: string;
-  userId: string;
-  user: Omit<UserDocument, 'password' | 'otp'>;
+  error: boolean;
+  message: string;
+  data: {
+    token: string;
+    userId: string;
+    user: Omit<UserDocument, 'password' | 'otp'>;
+  };
+  responseCode: number;
 }
 
 export interface GoogleAuthResponse {

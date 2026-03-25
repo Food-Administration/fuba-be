@@ -107,7 +107,12 @@ class AuthController {
       const { email, password } = req.body;
       const { token, userId, user } = await AuthService.login(email, password);
 
-      res.status(200).json({ token, userId, user });
+      res.status(200).json({
+        error: false,
+        message: 'Login successful',
+        data: { token, userId, user },
+        responseCode: 200
+      });
     }
   );
 
