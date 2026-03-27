@@ -103,14 +103,14 @@ class AuthController {
   );
 
   static login = asyncHandler(
-    async (req: Request<{}, {}, LoginRequest>, res: Response<LoginResponse>) => {
+    async (req: Request<{}, {}, LoginRequest>, res: Response) => {
       const { email, password } = req.body;
-      const { token, userId, user } = await AuthService.login(email, password);
+      const { token, userId, user, profile } = await AuthService.login(email, password);
 
       res.status(200).json({
         error: false,
         message: 'Login successful',
-        data: { token, userId, user },
+        data: { token, userId, user, profile },
         responseCode: 200
       });
     }

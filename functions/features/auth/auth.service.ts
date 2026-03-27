@@ -1,5 +1,7 @@
 import speakeasy from 'speakeasy';
-import User, { Role, UserDocument } from '../user/user.model';
+import User, { Role, ServiceType, UserDocument } from '../user/user.model';
+import VendorProfile from '../vendor/vendor.model';
+import RestaurantApplication from './restaurant_application.model';
 import EmailService from '../mail/email.service';
 import jwt from 'jsonwebtoken';
 import CustomError from '../../utils/customError';
@@ -239,6 +241,7 @@ class AuthService {
     userId: string;
     full_name: string | null;
     user: Omit<UserDocument, 'password' | 'otp'>;
+    profile?: any;
   }> {
     const user = await User.findOne({ email });
     if (!user) {
@@ -268,11 +271,27 @@ class AuthService {
     delete userObj.password;
     delete userObj.otp;
 
+    // Fetch profile details based on role
+    let profile: any = undefined;
+
+    if (user.role === Role.Vendor) {
+      const vendorProfile = await VendorProfile.findOne({ user: user._id });
+      if (vendorProfile) {
+        profile = vendorProfile.toObject();
+      }
+    } else if (user.role === Role.LuxuryRestaurant) {
+      const restaurantApp = await RestaurantApplication.findOne({ user: user._id });
+      if (restaurantApp) {
+        profile = restaurantApp.toObject();
+      }
+    }
+
     return {
       token,
       userId,
       full_name,
-      user: userObj as Omit<UserDocument, 'password' | 'otp'>
+      user: userObj as Omit<UserDocument, 'password' | 'otp'>,
+      profile
     };
   }
 

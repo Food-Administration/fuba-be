@@ -56,7 +56,8 @@ class VendorAuthController {
             const {
                 verification_token, first_name, last_name,
                 phone_number, password, brand_name,
-                brand_description, state, brand_address
+                brand_description, state, brand_address,
+                operating_hours
             } = req.body;
 
             // Handle optional file uploads: brand_logo, brand_cover
@@ -83,11 +84,18 @@ class VendorAuthController {
                 }
             }
 
+            // Parse operating_hours if sent as JSON string
+            let parsedOperatingHours = operating_hours;
+            if (typeof operating_hours === 'string') {
+                parsedOperatingHours = JSON.parse(operating_hours);
+            }
+
             const { user, token, vendor_profile } = await VendorAuthService.completeRegistration(
                 verification_token, first_name, last_name,
                 phone_number, password, brand_name,
                 brand_description, state, brand_address,
-                brand_logo_url, brand_cover_url
+                brand_logo_url, brand_cover_url,
+                parsedOperatingHours
             );
 
             res.status(201).json({

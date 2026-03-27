@@ -15,6 +15,12 @@ export enum VendorStatus {
     Rejected = 'rejected'
 }
 
+export interface VendorOperatingHours {
+    day: string;
+    hour: number;
+    minute: number;
+}
+
 export interface VendorProfileDocument extends Document {
     _id: Types.ObjectId;
     user: Types.ObjectId;
@@ -26,6 +32,7 @@ export interface VendorProfileDocument extends Document {
     business_phone?: string;
     brand_address?: string;
     state?: string;
+    operating_hours?: VendorOperatingHours[];
     nafdac_status: NafdacStatus;
     nafdac_seal_file?: string;
     nafdac_brand_name?: string;
@@ -38,6 +45,15 @@ export interface VendorProfileDocument extends Document {
     updatedAt: Date;
 }
 
+const VendorOperatingHoursSchema = new Schema<VendorOperatingHours>(
+    {
+        day: { type: String, required: true },
+        hour: { type: Number, required: true },
+        minute: { type: Number, required: true }
+    },
+    { _id: false }
+);
+
 const VendorProfileSchema = new Schema<VendorProfileDocument>(
     {
         user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
@@ -49,6 +65,7 @@ const VendorProfileSchema = new Schema<VendorProfileDocument>(
         business_phone: { type: String },
         brand_address: { type: String },
         state: { type: String },
+        operating_hours: { type: [VendorOperatingHoursSchema] },
         nafdac_status: {
             type: String,
             enum: Object.values(NafdacStatus),

@@ -1,5 +1,6 @@
 import { Role } from "../user/user.model";
 import { OperatingHours } from "./restaurant_application.model";
+import { VendorOperatingHours } from "../vendor/vendor.model";
 
 export interface SignupRequest {
   first_name: string;
@@ -68,6 +69,7 @@ export interface VendorRegisterRequest {
   brand_description?: string;
   state?: string;
   brand_address?: string;
+  operating_hours?: VendorOperatingHours[];
 }
 
 export interface NafdacSealRequest {

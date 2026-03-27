@@ -1,5 +1,5 @@
 import User, { Role, ServiceType, UserDocument } from '../user/user.model';
-import VendorProfile, { NafdacStatus, VendorProfileDocument } from '../vendor/vendor.model';
+import VendorProfile, { NafdacStatus, VendorOperatingHours, VendorProfileDocument } from '../vendor/vendor.model';
 import Waitlist from './waitlist.model';
 import EmailService from '../mail/email.service';
 import jwt from 'jsonwebtoken';
@@ -166,7 +166,8 @@ class VendorAuthService {
         state?: string,
         brand_address?: string,
         brand_logo_url?: string,
-        brand_cover_url?: string
+        brand_cover_url?: string,
+        operating_hours?: VendorOperatingHours[]
     ): Promise<{ user: UserDocument; token: string; vendor_profile: VendorProfileDocument }> {
         let decoded: any;
         try {
@@ -207,7 +208,8 @@ class VendorAuthService {
             brand_address,
             business_email: email,
             brand_image: brand_logo_url,
-            brand_cover_image: brand_cover_url
+            brand_cover_image: brand_cover_url,
+            operating_hours
         });
 
         const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {
