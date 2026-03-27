@@ -81,7 +81,6 @@ const FileSchema = new Schema<IFile>(
 // Indexes for efficient queries
 FileSchema.index({ uploadedBy: 1 });
 FileSchema.index({ associatedModel: 1, associatedId: 1 });
-FileSchema.index({ publicId: 1 });
 FileSchema.index({ folder: 1 });
 
 export default mongoose.model<IFile>("File", FileSchema);
