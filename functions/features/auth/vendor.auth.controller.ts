@@ -18,7 +18,7 @@ class VendorAuthController {
             const { state, brand_address } = req.body;
             const result = await VendorAuthService.checkAreaAvailability(state, brand_address);
 
-            res.status(200).json({ success: true, ...result });
+            res.status(200).json({ success: true, data: { available: result.available }, message: result.message });
         }
     );
 
@@ -29,7 +29,7 @@ class VendorAuthController {
                 email, phone_number, state, brand_address
             );
 
-            res.status(201).json({ success: true, ...result });
+            res.status(201).json({ success: true, message: result.message });
         }
     );
 
@@ -38,7 +38,7 @@ class VendorAuthController {
             const { email } = req.body;
             const result = await VendorAuthService.initiateVerification(email);
 
-            res.status(200).json({ success: true, ...result });
+            res.status(200).json({ success: true, message: result.message });
         }
     );
 
@@ -47,7 +47,11 @@ class VendorAuthController {
             const { email, otp } = req.body;
             const result = await VendorAuthService.verifyOtp(email, otp);
 
-            res.status(200).json({ success: true, ...result });
+            res.status(200).json({
+                success: true,
+                data: { verification_token: result.verification_token },
+                message: result.message
+            });
         }
     );
 
@@ -56,14 +60,15 @@ class VendorAuthController {
             const {
                 verification_token, first_name, last_name,
                 phone_number, password, brand_name,
-                brand_description, state, brand_address,
-                operating_hours
+                brand_category, brand_description, state, brand_address,
+                operating_hours, delivery_type, brand_registration_number
             } = req.body;
 
-            // Handle optional file uploads: brand_logo, brand_cover
+            // Handle optional file uploads: brand_logo, brand_cover, cac_certificate
             const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
             let brand_logo_url: string | undefined;
             let brand_cover_url: string | undefined;
+            let cac_certificate_url: string | undefined;
 
             if (files) {
                 if (files['brand_logo']?.[0]) {
@@ -82,6 +87,14 @@ class VendorAuthController {
                         associatedModel: 'VendorProfile'
                     });
                 }
+                if (files['cac_certificate']?.[0]) {
+                    const file = files['cac_certificate'][0];
+                    cac_certificate_url = file.path;
+                    await FileService.saveFileMetadata(file, {
+                        folder: 'vendor-cac',
+                        associatedModel: 'VendorProfile'
+                    });
+                }
             }
 
             // Parse operating_hours if sent as JSON string
@@ -93,26 +106,29 @@ class VendorAuthController {
             const { user, token, vendor_profile } = await VendorAuthService.completeRegistration(
                 verification_token, first_name, last_name,
                 phone_number, password, brand_name,
-                brand_description, state, brand_address,
+                brand_category, brand_description, state, brand_address,
                 brand_logo_url, brand_cover_url,
-                parsedOperatingHours
+                parsedOperatingHours, delivery_type, brand_registration_number,
+                cac_certificate_url
             );
 
             res.status(201).json({
-                message: 'Vendor registration completed successfully.',
                 success: true,
-                token,
-                user: {
-                    _id: user._id,
-                    first_name: user.first_name,
-                    last_name: user.last_name,
-                    email: user.email,
-                    phone_number: user.phone_number,
-                    role: user.role,
-                    service_type: user.service_type,
-                    verified: user.verified
+                data: {
+                    token,
+                    user: {
+                        _id: user._id,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        email: user.email,
+                        phone_number: user.phone_number,
+                        role: user.role,
+                        service_type: user.service_type,
+                        verified: user.verified
+                    },
+                    vendor_profile
                 },
-                vendor_profile
+                message: 'Vendor registration completed successfully.'
             });
         }
     );
@@ -127,7 +143,9 @@ class VendorAuthController {
                 brand_name, business_email, brand_address, brand_phone
             );
 
-            res.status(200).json({ success: true, ...result });
+            const { message, ...data } = result;
+
+            res.status(200).json({ success: true, data, message });
         }
     );
 
@@ -140,7 +158,9 @@ class VendorAuthController {
                 user._id.toString(), payment_reference
             );
 
-            res.status(200).json({ success: true, ...result });
+            const { message: msg, ...paymentData } = result;
+
+            res.status(200).json({ success: true, data: paymentData, message: msg });
         }
     );
 
@@ -151,8 +171,7 @@ class VendorAuthController {
 
             const file = req.file;
             if (!file) {
-                res.status(400).json({ success: false, message: 'NAFDAC seal file is required.' });
-                return;
+                res.status(400).json({ success: false, message: 'NAFDAC seal file is required.' });                return;
             }
 
             // Save file metadata
@@ -167,7 +186,9 @@ class VendorAuthController {
                 brand_name, brand_email, brand_address, file.path
             );
 
-            res.status(200).json({ success: true, ...result });
+            const { message: uploadMsg, ...uploadData } = result;
+
+            res.status(200).json({ success: true, data: uploadData, message: uploadMsg });
         }
     );
 }

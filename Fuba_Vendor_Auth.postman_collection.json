@@ -74,11 +74,16 @@
                 {"key":"phone_number","value":"08098765432","type":"text"},
                 {"key":"password","value":"VendorPass123!","type":"text"},
                 {"key":"brand_name","value":"Jane's Kitchen","type":"text"},
+                {"key":"brand_category","value":"Nigerian Cuisine","type":"text"},
                 {"key":"brand_description","value":"Authentic Nigerian meals","type":"text"},
                 {"key":"state","value":"Lagos","type":"text"},
                 {"key":"brand_address","value":"123 Victoria Island, Lagos","type":"text"},
+                {"key":"delivery_type","value":"both","type":"text"},
+                {"key":"brand_registration_number","value":"RC-654321","type":"text"},
+                {"key":"operating_hours","value":"[{\"day\":\"Monday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0},{\"day\":\"Tuesday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0},{\"day\":\"Wednesday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0}]","type":"text"},
                 {"key":"brand_logo","type":"file","src":""},
-                {"key":"brand_cover","type":"file","src":""}
+                {"key":"brand_cover","type":"file","src":""},
+                {"key":"cac_certificate","type":"file","src":""}
               ]
             },
             "url": {"raw":"{{base_url}}/auth/vendor/register","host":["{{base_url}}"],"path":["auth","vendor","register"]}
@@ -133,7 +138,7 @@
           "event": [{"listen":"test","script":{"exec":[
             "if (pm.response.code === 200) {",
             "  const json = pm.response.json();",
-            "  pm.collectionVariables.set('auth_token', json.token);",
+            "  pm.collectionVariables.set('auth_token', json.data.token);",
             "}"
           ],"type":"text/javascript"}}],
           "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],

@@ -17,14 +17,17 @@ export enum VendorStatus {
 
 export interface VendorOperatingHours {
     day: string;
-    hour: number;
-    minute: number;
+    open_hour: number;
+    open_minute: number;
+    close_hour: number;
+    close_minute: number;
 }
 
 export interface VendorProfileDocument extends Document {
     _id: Types.ObjectId;
     user: Types.ObjectId;
     brand_name: string;
+    brand_category?: string;
     brand_description?: string;
     brand_image?: string;
     brand_cover_image?: string;
@@ -33,6 +36,9 @@ export interface VendorProfileDocument extends Document {
     brand_address?: string;
     state?: string;
     operating_hours?: VendorOperatingHours[];
+    delivery_type?: 'pickup' | 'delivery' | 'both';
+    brand_registration_number?: string;
+    cac_certificate?: string;
     nafdac_status: NafdacStatus;
     nafdac_seal_file?: string;
     nafdac_brand_name?: string;
@@ -48,8 +54,10 @@ export interface VendorProfileDocument extends Document {
 const VendorOperatingHoursSchema = new Schema<VendorOperatingHours>(
     {
         day: { type: String, required: true },
-        hour: { type: Number, required: true },
-        minute: { type: Number, required: true }
+        open_hour: { type: Number, required: true },
+        open_minute: { type: Number, required: true },
+        close_hour: { type: Number, required: true },
+        close_minute: { type: Number, required: true }
     },
     { _id: false }
 );
@@ -58,6 +66,7 @@ const VendorProfileSchema = new Schema<VendorProfileDocument>(
     {
         user: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
         brand_name: { type: String, required: true },
+        brand_category: { type: String },
         brand_description: { type: String },
         brand_image: { type: String },
         brand_cover_image: { type: String },
@@ -66,6 +75,12 @@ const VendorProfileSchema = new Schema<VendorProfileDocument>(
         brand_address: { type: String },
         state: { type: String },
         operating_hours: { type: [VendorOperatingHoursSchema] },
+        delivery_type: {
+            type: String,
+            enum: ['pickup', 'delivery', 'both']
+        },
+        brand_registration_number: { type: String },
+        cac_certificate: { type: String },
         nafdac_status: {
             type: String,
             enum: Object.values(NafdacStatus),

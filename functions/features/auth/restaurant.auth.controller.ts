@@ -10,7 +10,7 @@ class RestaurantAuthController {
             const { email } = req.body;
             const result = await RestaurantAuthService.initiateVerification(email);
 
-            res.status(200).json({ success: true, ...result });
+            res.status(200).json({ success: true, message: result.message });
         }
     );
 
@@ -19,7 +19,11 @@ class RestaurantAuthController {
             const { email, otp } = req.body;
             const result = await RestaurantAuthService.verifyOtp(email, otp);
 
-            res.status(200).json({ success: true, ...result });
+            res.status(200).json({
+                success: true,
+                data: { verification_token: result.verification_token },
+                message: result.message
+            });
         }
     );
 
@@ -28,7 +32,7 @@ class RestaurantAuthController {
             const { email } = req.body;
             const result = await RestaurantAuthService.resendOtp(email);
 
-            res.status(200).json({ success: true, ...result });
+            res.status(200).json({ success: true, message: result.message });
         }
     );
 
@@ -98,32 +102,34 @@ class RestaurantAuthController {
             });
 
             res.status(201).json({
-                message: 'Restaurant registration submitted for review.',
                 success: true,
-                token,
-                user: {
-                    _id: user._id,
-                    first_name: user.first_name,
-                    last_name: user.last_name,
-                    email: user.email,
-                    phone_number: user.phone_number,
-                    role: user.role,
-                    service_type: user.service_type,
-                    verified: user.verified
+                data: {
+                    token,
+                    user: {
+                        _id: user._id,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        email: user.email,
+                        phone_number: user.phone_number,
+                        role: user.role,
+                        service_type: user.service_type,
+                        verified: user.verified
+                    },
+                    application: {
+                        _id: application._id,
+                        brand_name: application.brand_name,
+                        brand_category: application.brand_category,
+                        brand_address: application.brand_address,
+                        operating_hours: application.operating_hours,
+                        delivery_type: application.delivery_type,
+                        brand_logo: application.brand_logo,
+                        cover_image: application.cover_image,
+                        brand_registration_number: application.brand_registration_number,
+                        cac_certificate: application.cac_certificate,
+                        status: application.status
+                    }
                 },
-                application: {
-                    _id: application._id,
-                    brand_name: application.brand_name,
-                    brand_category: application.brand_category,
-                    brand_address: application.brand_address,
-                    operating_hours: application.operating_hours,
-                    delivery_type: application.delivery_type,
-                    brand_logo: application.brand_logo,
-                    cover_image: application.cover_image,
-                    brand_registration_number: application.brand_registration_number,
-                    cac_certificate: application.cac_certificate,
-                    status: application.status
-                }
+                message: 'Restaurant registration submitted for review.'
             });
         }
     );

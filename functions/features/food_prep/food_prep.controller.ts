@@ -17,14 +17,14 @@ export class FoodPrepController {
     res.status(200).json({
       success: true,
       data: foodPreps,
-      meta: { total, page, limit }
+      meta: { total, offset: (page - 1) * limit, limit }
     });
   });
 
   getById = asyncHandler(async (req: Request, res: Response) => {
     const foodPrep = await FoodPrepService.getById(req.params.id);
     if (!foodPrep) {
-      res.status(404).json({ success: false, error: 'Food preparation entry not found' });
+      res.status(404).json({ success: false, message: 'Food preparation entry not found' });
       return;
     }
     res.status(200).json({ success: true, data: foodPrep });
@@ -33,7 +33,7 @@ export class FoodPrepController {
   update = asyncHandler(async (req: Request, res: Response) => {
     const foodPrep = await FoodPrepService.update(req.params.id, req.body);
     if (!foodPrep) {
-      res.status(404).json({ success: false, error: 'Food preparation entry not found' });
+      res.status(404).json({ success: false, message: 'Food preparation entry not found' });
       return;
     }
     res.status(200).json({
@@ -51,14 +51,14 @@ export class FoodPrepController {
     res.status(200).json({
       success: true,
       data: foodPreps,
-      meta: { total, page, limit }
+      meta: { total, offset: (page - 1) * limit, limit }
     });
   });
 
   delete = asyncHandler(async (req: Request, res: Response) => {
     const foodPrep = await FoodPrepService.delete(req.params.id);
     if (!foodPrep) {
-      res.status(404).json({ success: false, error: 'Food preparation entry not found' });
+      res.status(404).json({ success: false, message: 'Food preparation entry not found' });
       return;
     }
     res.status(200).json({
@@ -74,7 +74,7 @@ export class FoodPrepController {
     if (!validStatuses.includes(status)) {
       res.status(400).json({
         success: false,
-        error: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
+        message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
       });
       return;
     }
@@ -86,7 +86,7 @@ export class FoodPrepController {
     res.status(200).json({
       success: true,
       data: foodPreps,
-      meta: { total, page, limit }
+      meta: { total, offset: (page - 1) * limit, limit }
     });
   });
 
@@ -96,7 +96,7 @@ export class FoodPrepController {
     if (!['delivery', 'pickup'].includes(mode)) {
       res.status(400).json({
         success: false,
-        error: 'Invalid mode. Must be either "delivery" or "pickup"'
+        message: 'Invalid mode. Must be either "delivery" or "pickup"'
       });
       return;
     }
@@ -108,7 +108,7 @@ export class FoodPrepController {
     res.status(200).json({
       success: true,
       data: foodPreps,
-      meta: { total, page, limit }
+      meta: { total, offset: (page - 1) * limit, limit }
     });
   });
 
@@ -119,14 +119,14 @@ export class FoodPrepController {
     if (!status || !validStatuses.includes(status)) {
       res.status(400).json({
         success: false,
-        error: `Status is required and must be one of: ${validStatuses.join(', ')}`
+        message: `Status is required and must be one of: ${validStatuses.join(', ')}`
       });
       return;
     }
 
     const foodPrep = await FoodPrepService.updateStatus(req.params.id, status);
     if (!foodPrep) {
-      res.status(404).json({ success: false, error: 'Food preparation entry not found' });
+      res.status(404).json({ success: false, message: 'Food preparation entry not found' });
       return;
     }
 

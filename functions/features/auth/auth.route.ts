@@ -31,7 +31,8 @@ router.post(
     '/vendor/register',
     upload.fields([
         { name: 'brand_logo', maxCount: 1 },
-        { name: 'brand_cover', maxCount: 1 }
+        { name: 'brand_cover', maxCount: 1 },
+        { name: 'cac_certificate', maxCount: 1 }
     ]),
     VendorAuthController.register
 );

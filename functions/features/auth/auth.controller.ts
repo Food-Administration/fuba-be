@@ -15,7 +15,6 @@ import {
 
 import {
   // SignupResponse,
-  LoginResponse,
   GoogleAuthResponse,
   OTPResponse,
   MessageResponse
@@ -58,9 +57,9 @@ class AuthController {
       const { verification_token, message } = await AuthService.verifyEmail(email, otp);
 
       res.status(200).json({
-        message,
         success: true,
-        verification_token
+        data: { verification_token },
+        message
       });
     }
   );
@@ -86,18 +85,20 @@ class AuthController {
       );
 
       res.status(201).json({
-        message: 'Registration completed successfully',
         success: true,
-        token,
-        user: {
-          _id: user._id,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          email: user.email,
-          phone_number: user.phone_number,
-          role: user.role,
-          verified: user.verified
-        }
+        data: {
+          token,
+          user: {
+            _id: user._id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            phone_number: user.phone_number,
+            role: user.role,
+            verified: user.verified
+          }
+        },
+        message: 'Registration completed successfully'
       });
     }
   );
@@ -108,10 +109,9 @@ class AuthController {
       const { token, userId, user, profile } = await AuthService.login(email, password);
 
       res.status(200).json({
-        error: false,
-        message: 'Login successful',
+        success: true,
         data: { token, userId, user, profile },
-        responseCode: 200
+        message: 'Login successful'
       });
     }
   );
@@ -121,7 +121,11 @@ class AuthController {
       const { idToken } = req.body;
       const { token, user } = await AuthService.googleSignIn(idToken);
 
-      res.status(200).json({ token, user });
+      res.status(200).json({
+        success: true,
+        data: { token, user },
+        message: 'Google sign-in successful'
+      });
     }
   );
 
@@ -130,7 +134,11 @@ class AuthController {
       const { idToken } = req.body;
       const { token, user } = await AuthService.googleLogin(idToken);
 
-      res.status(200).json({ token, user });
+      res.status(200).json({
+        success: true,
+        data: { token, user },
+        message: 'Google login successful'
+      });
     }
   );
 
@@ -139,7 +147,7 @@ class AuthController {
       const { email } = req.body;
       const { otp, message } = await AuthService.requestOTP(email);
 
-      res.status(200).json({ otp, message });
+      res.status(200).json({ success: true, data: { otp }, message });
     }
   );
 
@@ -148,7 +156,7 @@ class AuthController {
       const { email, otp } = req.body;
       const {token, user} = await AuthService.verifyOTP(email, otp);
 
-      res.status(200).json({ message: 'OTP verified successfully', success: true, token, user });
+      res.status(200).json({ success: true, data: { token, user }, message: 'OTP verified successfully' });
     }
   );
 
@@ -157,7 +165,7 @@ class AuthController {
       const { email, new_password, confirm_password, otp } = req.body;
       const {token, user} = await AuthService.newPassword(email, new_password, confirm_password, otp);
 
-      res.status(200).json({ message: 'New Password Changed Successfully', success: true, token, user });
+      res.status(200).json({ success: true, data: { token, user }, message: 'New Password Changed Successfully' });
     }
   );
 
@@ -169,7 +177,7 @@ class AuthController {
 
       await AuthService.changePassword(userId, currentPassword, newPassword);
 
-      res.status(200).json({ message: 'Password changed successfully' });
+      res.status(200).json({ success: true, message: 'Password changed successfully' });
     }
   );
 
@@ -178,7 +186,7 @@ class AuthController {
       const { email } = req.body;
       await AuthService.resendVerificationEmail(email);
 
-      res.status(200).json({ message: 'Verification email resent', success: true });
+      res.status(200).json({ success: true, message: 'Verification email resent' });
     }
   );
 }

@@ -162,12 +162,16 @@ class VendorAuthService {
         phone_number: string,
         password: string,
         brand_name: string,
+        brand_category?: string,
         brand_description?: string,
         state?: string,
         brand_address?: string,
         brand_logo_url?: string,
         brand_cover_url?: string,
-        operating_hours?: VendorOperatingHours[]
+        operating_hours?: VendorOperatingHours[],
+        delivery_type?: 'pickup' | 'delivery' | 'both',
+        brand_registration_number?: string,
+        cac_certificate_url?: string
     ): Promise<{ user: UserDocument; token: string; vendor_profile: VendorProfileDocument }> {
         let decoded: any;
         try {
@@ -183,7 +187,19 @@ class VendorAuthService {
         const { email, userId } = decoded;
         const user = await User.findOne({ _id: userId, email, verified: false });
         if (!user) {
-            throw new CustomError('User not found or already verified.', 400);
+            throw new CustomError('User not found or already verified.', 400, 'USER_NOT_FOUND');
+        }
+
+        // Check for duplicate phone number among verified users
+        const existingPhone = await User.findOne({ phone_number, verified: true, _id: { $ne: userId } });
+        if (existingPhone) {
+            throw new CustomError('A verified account already exists with this phone number.', 409, 'DUPLICATE_PHONE_NUMBER');
+        }
+
+        // Check for duplicate brand name
+        const existingBrand = await VendorProfile.findOne({ brand_name });
+        if (existingBrand) {
+            throw new CustomError('A vendor with this brand name already exists.', 409, 'DUPLICATE_BRAND_NAME');
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -203,13 +219,17 @@ class VendorAuthService {
         const vendor_profile = await VendorProfile.create({
             user: user._id,
             brand_name,
+            brand_category,
             brand_description,
             state,
             brand_address,
             business_email: email,
             brand_image: brand_logo_url,
             brand_cover_image: brand_cover_url,
-            operating_hours
+            operating_hours,
+            delivery_type,
+            brand_registration_number,
+            cac_certificate: cac_certificate_url
         });
 
         const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {

@@ -190,7 +190,7 @@ export class RestaurantController {
     if (!restaurant) {
       res
         .status(404)
-        .json({ success: false, error: "Restaurant not found" });
+        .json({ success: false, message: "Restaurant not found" });
       return;
     }
     res.status(200).json({ success: true, data: restaurant });
@@ -208,8 +208,7 @@ export class RestaurantController {
 
     if (!["delivery", "pickup", "both"].includes(mode)) {
       res.status(400).json({
-        success: false,
-        error: "Mode must be 'delivery', 'pickup', or 'both'",
+        success: false, message: "Mode must be 'delivery', 'pickup', or 'both'",
       });
       return;
     }
@@ -280,7 +279,7 @@ export class RestaurantController {
     if (!restaurant) {
       res
         .status(404)
-        .json({ success: false, error: "Restaurant not found" });
+        .json({ success: false, message: "Restaurant not found" });
       return;
     }
     res.status(200).json({ success: true, data: restaurant });
@@ -294,7 +293,7 @@ export class RestaurantController {
     if (!restaurant) {
       res
         .status(404)
-        .json({ success: false, error: "Restaurant not found" });
+        .json({ success: false, message: "Restaurant not found" });
       return;
     }
     res.status(200).json({
@@ -313,8 +312,7 @@ export class RestaurantController {
 
     if (!file) {
       res.status(400).json({
-        success: false,
-        error: "No image file uploaded",
+        success: false, message: "No image file uploaded",
       });
       return;
     }
@@ -322,8 +320,7 @@ export class RestaurantController {
     const restaurant = await RestaurantService.updateImage(id, file, userId);
     if (!restaurant) {
       res.status(404).json({
-        success: false,
-        error: "Restaurant not found",
+        success: false, message: "Restaurant not found",
       });
       return;
     }
@@ -345,8 +342,7 @@ export class RestaurantController {
 
     if (!restaurantId) {
       res.status(400).json({
-        success: false,
-        error: "restaurantId is required",
+        success: false, message: "restaurantId is required",
       });
       return;
     }
@@ -356,8 +352,7 @@ export class RestaurantController {
       const restaurant = await RestaurantService.addItem(restaurantId, itemId);
       if (!restaurant) {
         res.status(404).json({
-          success: false,
-          error: "Restaurant or item not found",
+          success: false, message: "Restaurant or item not found",
         });
         return;
       }
@@ -389,8 +384,7 @@ export class RestaurantController {
     const source = (item && typeof item === "object") ? item : topLevelCandidate;
     if (!source) {
       res.status(400).json({
-        success: false,
-        error: "Provide either a valid itemId or an item payload",
+        success: false, message: "Provide either a valid itemId or an item payload",
       });
       return;
     }
@@ -478,8 +472,7 @@ export class RestaurantController {
     }
     if (missing.length) {
       res.status(400).json({
-        success: false,
-        error: `Missing required fields: ${missing.join(", ")}`,
+        success: false, message: `Missing required fields: ${missing.join(", ")}`,
       });
       return;
     }
@@ -493,8 +486,7 @@ export class RestaurantController {
     );
     if (!restaurant) {
       res.status(404).json({
-        success: false,
-        error: "Restaurant not found",
+        success: false, message: "Restaurant not found",
       });
       return;
     }
@@ -514,8 +506,7 @@ export class RestaurantController {
 
     if (!restaurantId || !itemId) {
       res.status(400).json({
-        success: false,
-        error: "restaurantId and itemId are required",
+        success: false, message: "restaurantId and itemId are required",
       });
       return;
     }
@@ -526,8 +517,7 @@ export class RestaurantController {
     );
     if (!restaurant) {
       res.status(404).json({
-        success: false,
-        error: "Restaurant or item not found",
+        success: false, message: "Restaurant or item not found",
       });
       return;
     }
@@ -548,16 +538,14 @@ export class RestaurantController {
 
     if (rating === undefined) {
       res.status(400).json({
-        success: false,
-        error: "Rating is required",
+        success: false, message: "Rating is required",
       });
       return;
     }
 
     if (rating < 0 || rating > 5) {
       res.status(400).json({
-        success: false,
-        error: "Rating must be between 0 and 5",
+        success: false, message: "Rating must be between 0 and 5",
       });
       return;
     }
@@ -565,8 +553,7 @@ export class RestaurantController {
     const restaurant = await RestaurantService.updateRating(id, rating);
     if (!restaurant) {
       res.status(404).json({
-        success: false,
-        error: "Restaurant not found",
+        success: false, message: "Restaurant not found",
       });
       return;
     }
@@ -583,13 +570,13 @@ export class RestaurantController {
     const restaurantId = req.params.id;
 
     if (!userId) {
-      res.status(401).json({ success: false, error: "Unauthorized" });
+      res.status(401).json({ success: false, message: "Unauthorized" });
       return;
     }
 
     const restaurant = await RestaurantService.toggleFavorite(userId, restaurantId);
     if (!restaurant) {
-      res.status(404).json({ success: false, error: "Restaurant not found" });
+      res.status(404).json({ success: false, message: "Restaurant not found" });
       return;
     }
 

@@ -112,7 +112,7 @@ export class FoodItemController {
   getById = asyncHandler(async (req: Request, res: Response) => {
     const foodItem = await FoodItemService.getById(req.params.id);
     if (!foodItem) {
-      res.status(404).json({ success: false, error: "Food item not found" });
+      res.status(404).json({ success: false, message: "Food item not found" });
       return;
     }
     res.status(200).json({ success: true, data: foodItem });
@@ -143,7 +143,7 @@ export class FoodItemController {
     }
     const foodItem = await FoodItemService.update(req.params.id, payload);
     if (!foodItem) {
-      res.status(404).json({ success: false, error: "Food item not found" });
+      res.status(404).json({ success: false, message: "Food item not found" });
       return;
     }
     res.status(200).json({ success: true, data: foodItem });
@@ -152,7 +152,7 @@ export class FoodItemController {
   delete = asyncHandler(async (req: Request, res: Response) => {
     const foodItem = await FoodItemService.deleteWithImage(req.params.id);
     if (!foodItem) {
-      res.status(404).json({ success: false, error: "Food item not found" });
+      res.status(404).json({ success: false, message: "Food item not found" });
       return;
     }
     res
@@ -168,7 +168,7 @@ export class FoodItemController {
     if (!file) {
       res.status(400).json({
         success: false,
-        error: "No image file uploaded",
+        message: "No image file uploaded",
       });
       return;
     }
@@ -177,7 +177,7 @@ export class FoodItemController {
     if (!foodItem) {
       res.status(404).json({
         success: false,
-        error: "Food item not found",
+        message: "Food item not found",
       });
       return;
     }

@@ -69,8 +69,11 @@ app.use(
     next: express.NextFunction
   ) => {
     console.error(err.stack);
-    res.status(err.status || 500).json({
+    const status = err.status || 500;
+    res.status(status).json({
+      success: false,
       message: err.message || 'Internal Server Error',
+      error_code: err.error_code,
       verified: err.isEmailVerified !== undefined ? err.isEmailVerified : true,
     });
   }
@@ -78,7 +81,7 @@ app.use(
 
 app.all("*", async (req, res) => {
   try {
-    res.status(404).json({ message: "Route not found", status: 404 });
+    res.status(404).json({ success: false, message: "Route not found" });
   } catch (error: any) {
     throw new CustomError(error.message, 500); 
   }

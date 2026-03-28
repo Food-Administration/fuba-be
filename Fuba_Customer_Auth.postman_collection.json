@@ -94,7 +94,7 @@
             "script": {"exec": [
               "if (pm.response.code === 200) {",
               "  const json = pm.response.json();",
-              "  pm.collectionVariables.set('auth_token', json.token);",
+              "  pm.collectionVariables.set('auth_token', json.data.token);",
               "}"
             ], "type": "text/javascript"}
           }],

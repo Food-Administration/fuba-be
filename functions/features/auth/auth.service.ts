@@ -1,5 +1,5 @@
 import speakeasy from 'speakeasy';
-import User, { Role, ServiceType, UserDocument } from '../user/user.model';
+import User, { Role, UserDocument } from '../user/user.model';
 import VendorProfile from '../vendor/vendor.model';
 import RestaurantApplication from './restaurant_application.model';
 import EmailService from '../mail/email.service';

@@ -66,10 +66,13 @@ export interface VendorRegisterRequest {
   phone_number: string;
   password: string;
   brand_name: string;
+  brand_category?: string;
   brand_description?: string;
   state?: string;
   brand_address?: string;
   operating_hours?: VendorOperatingHours[];
+  delivery_type?: 'pickup' | 'delivery' | 'both';
+  brand_registration_number?: string;
 }
 
 export interface NafdacSealRequest {

@@ -40,7 +40,7 @@ export class CartController {
     if (!cart) {
       res.status(404).json({ 
         success: false,
-        error: 'Item not found in cart'
+        message: 'Item not found in cart'
       });
       return;
     }

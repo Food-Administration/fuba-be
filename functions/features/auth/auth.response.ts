@@ -12,31 +12,39 @@ export interface SignupResponse {
 }
 
 export interface LoginResponse {
-  error: boolean;
+  success: boolean;
   message: string;
   data: {
     token: string;
     userId: string;
     user: Omit<UserDocument, 'password' | 'otp'>;
   };
-  responseCode: number;
 }
 
 export interface GoogleAuthResponse {
-  token: string;
-  user: any;
+  success: boolean;
+  data: {
+    token: string;
+    user: any;
+  };
+  message: string;
 }
 
 export interface OTPResponse {
-  otp: string;
+  success: boolean;
+  data: {
+    otp: string;
+  };
   message: string;
 }
 
 export interface MessageResponse {
+  success: boolean;
   message: string;
-  success?: boolean;
-  token?: string;
-  user?: Omit<UserDocument, 'password' | 'otp'>;
+  data?: {
+    token?: string;
+    user?: Omit<UserDocument, 'password' | 'otp'>;
+  };
 }
 
 export interface VendorCheckAreaResponse {

@@ -17,14 +17,14 @@ export class OrderController {
     res.status(200).json({
       success: true,
       data: orders,
-      meta: { total, page, limit }
+      meta: { total, offset: (page - 1) * limit, limit }
     });
   });
 
   getById = asyncHandler(async (req: Request, res: Response) => {
     const order = await OrderService.getById(req.params.id);
     if (!order) {
-      res.status(404).json({ success: false, error: 'Order not found' });
+      res.status(404).json({ success: false, message: 'Order not found' });
       return;
     }
     res.status(200).json({ success: true, data: order });
@@ -36,7 +36,7 @@ export class OrderController {
       req.body.status
     );
     if (!order) {
-      res.status(404).json({ success: false, error: 'Order not found' });
+      res.status(404).json({ success: false, message: 'Order not found' });
       return;
     }
     res.status(200).json({
@@ -54,7 +54,7 @@ export class OrderController {
     res.status(200).json({
       success: true,
       data: orders,
-      meta: { total, page, limit }
+      meta: { total, offset: (page - 1) * limit, limit }
     });
   });
 
@@ -66,7 +66,7 @@ export class OrderController {
     res.status(200).json({
       success: true,
       data: orders,
-      meta: { total, page, limit }
+      meta: { total, offset: (page - 1) * limit, limit }
     });
   });
 }

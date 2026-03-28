@@ -8,8 +8,10 @@ export enum RestaurantApplicationStatus {
 
 export interface OperatingHours {
     day: string;
-    open_time: string;
-    close_time: string;
+    open_hour: number;
+    open_minute: number;
+    close_hour: number;
+    close_minute: number;
 }
 
 export interface RestaurantApplicationDocument extends Document {
@@ -33,8 +35,10 @@ export interface RestaurantApplicationDocument extends Document {
 const OperatingHoursSchema = new Schema<OperatingHours>(
     {
         day: { type: String, required: true },
-        open_time: { type: String, required: true },
-        close_time: { type: String, required: true }
+        open_hour: { type: Number, required: true },
+        open_minute: { type: Number, required: true },
+        close_hour: { type: Number, required: true },
+        close_minute: { type: Number, required: true }
     },
     { _id: false }
 );

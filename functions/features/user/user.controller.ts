@@ -9,10 +9,10 @@ class UserController {
       console.log('userId: ', userId);
       const user = await UserService.getUserById(userId as string);
       if (!user) {
-        res.status(404).json({ message: 'User not found' });
+        res.status(404).json({ success: false, message: 'User not found' });
         return;
       }
-      res.status(200).json(user);
+      res.status(200).json({ success: true, data: user });
     }
   );
 
@@ -21,7 +21,7 @@ class UserController {
     async (req: Request, res: Response): Promise<void> => {
       const { userId } = req.params;
       const profile = await UserService.getProfile(userId);
-      res.status(200).json(profile);
+      res.status(200).json({ success: true, data: profile });
     }
   );
 
@@ -34,7 +34,7 @@ class UserController {
         userId,
         updateData
       );
-      res.status(200).json(updatedProfile);
+      res.status(200).json({ success: true, data: updatedProfile, message: 'Profile updated successfully' });
     }
   );
 
@@ -43,14 +43,14 @@ class UserController {
     async (req: Request, res: Response): Promise<void> => {
       const { userId } = req.params;
       const { oldPassword, newPassword } = req.body;
-      const result = await UserService.updatePassword(
+      await UserService.updatePassword(
         userId,
         oldPassword,
         newPassword
       );
       res
         .status(200)
-        .json({ result, message: 'Password Changed Successfully' });
+        .json({ success: true, message: 'Password Changed Successfully' });
     }
   );
 
@@ -85,7 +85,7 @@ class UserController {
       if (!imageUrl) {
         res.status(400).json({
           success: false,
-          error: 'No image file or imageUrl provided'
+          message: 'No image file or imageUrl provided'
         });
         return;
       }

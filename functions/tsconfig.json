@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "Node16",
     "outDir": "./lib", // Outputs the compiled files to the 'lib' folder
     "rootDir": "./",
     "noImplicitReturns": true,
@@ -12,7 +12,7 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "emitDecoratorMetadata": true,
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "target": "ES2021",
     "sourceMap": true,
     "typeRoots": [

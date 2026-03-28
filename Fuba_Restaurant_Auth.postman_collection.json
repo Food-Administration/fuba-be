@@ -66,7 +66,7 @@
               {"key":"brand_name","value":"Luxury Bites","type":"text"},
               {"key":"brand_category","value":"Fine Dining","type":"text"},
               {"key":"brand_address","value":"456 Ikoyi Drive, Lagos","type":"text"},
-              {"key":"operating_hours","value":"[{\\\"day\\\":\\\"Monday\\\",\\\"open_time\\\":\\\"09:00\\\",\\\"close_time\\\":\\\"22:00\\\"}]","type":"text"},
+              {"key":"operating_hours","value":"[{\"day\":\"Monday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0},{\"day\":\"Tuesday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0}]","type":"text"},
               {"key":"delivery_type","value":"both","type":"text"},
               {"key":"brand_registration_number","value":"RC-123456","type":"text"},
               {"key":"brand_logo","type":"file","src":""},
@@ -88,7 +88,7 @@
           "event": [{"listen":"test","script":{"exec":[
             "if (pm.response.code === 200) {",
             "  const json = pm.response.json();",
-            "  pm.collectionVariables.set('auth_token', json.token);",
+            "  pm.collectionVariables.set('auth_token', json.data.token);",
             "}"
           ],"type":"text/javascript"}}],
           "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
