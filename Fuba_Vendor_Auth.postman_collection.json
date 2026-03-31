@@ -17,116 +17,814 @@
       "item": [
         {
           "name": "1. Check Area Availability",
-          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
-            "body":{"mode":"raw","raw":"{\n  \"state\": \"Lagos\",\n  \"brand_address\": \"123 Victoria Island, Lagos\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/vendor/check-area","host":["{{base_url}}"],"path":["auth","vendor","check-area"]},
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"state\": \"Lagos\",\n  \"brand_address\": \"123 Victoria Island, Lagos\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/vendor/check-area", "host": ["{{base_url}}"], "path": ["auth", "vendor", "check-area"] },
             "description": "Check if Fuba is available in vendor's state."
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - Area Available",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"state\": \"Lagos\",\n  \"brand_address\": \"123 Victoria Island, Lagos\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/check-area", "host": ["{{base_url}}"], "path": ["auth", "vendor", "check-area"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"available\": true\n  },\n  \"message\": \"Fuba is available in your area! You can proceed with registration.\"\n}"
+            },
+            {
+              "name": "200 - Area Unavailable",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"state\": \"Kano\",\n  \"brand_address\": \"45 Main Street, Kano\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/check-area", "host": ["{{base_url}}"], "path": ["auth", "vendor", "check-area"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"available\": false\n  },\n  \"message\": \"Fuba is not yet available in your area. Join the waitlist to be notified.\"\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"state\": \"Lagos\",\n  \"brand_address\": \"123 Victoria Island, Lagos\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/check-area", "host": ["{{base_url}}"], "path": ["auth", "vendor", "check-area"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         },
         {
           "name": "2a. Join Waitlist (Unavailable Area)",
-          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
-            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"phone_number\": \"08098765432\",\n  \"state\": \"Kano\",\n  \"brand_address\": \"45 Main Street, Kano\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/vendor/waitlist","host":["{{base_url}}"],"path":["auth","vendor","waitlist"]}
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\",\n  \"phone_number\": \"08098765432\",\n  \"state\": \"Kano\",\n  \"brand_address\": \"45 Main Street, Kano\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/vendor/waitlist", "host": ["{{base_url}}"], "path": ["auth", "vendor", "waitlist"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "201 - Joined Waitlist",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"phone_number\": \"08098765432\",\n  \"state\": \"Kano\",\n  \"brand_address\": \"45 Main Street, Kano\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/waitlist", "host": ["{{base_url}}"], "path": ["auth", "vendor", "waitlist"] }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"You have been added to the waitlist. We will notify you when Fuba is available in your area.\"\n}"
+            },
+            {
+              "name": "400 - Already On Waitlist",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"phone_number\": \"08098765432\",\n  \"state\": \"Kano\",\n  \"brand_address\": \"45 Main Street, Kano\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/waitlist", "host": ["{{base_url}}"], "path": ["auth", "vendor", "waitlist"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"You are already on the waitlist for this service.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"phone_number\": \"08098765432\",\n  \"state\": \"Kano\",\n  \"brand_address\": \"45 Main Street, Kano\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/waitlist", "host": ["{{base_url}}"], "path": ["auth", "vendor", "waitlist"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         },
         {
           "name": "2b. Initiate Vendor Verification",
-          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
-            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/vendor/initiate-verification","host":["{{base_url}}"],"path":["auth","vendor","initiate-verification"]}
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/vendor/initiate-verification", "host": ["{{base_url}}"], "path": ["auth", "vendor", "initiate-verification"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - Verification Code Sent",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/initiate-verification", "host": ["{{base_url}}"], "path": ["auth", "vendor", "initiate-verification"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Verification code sent to your email. Please verify to continue registration.\"\n}"
+            },
+            {
+              "name": "400 - Account Already Exists",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"existing@example.com\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/initiate-verification", "host": ["{{base_url}}"], "path": ["auth", "vendor", "initiate-verification"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"An account already exists with this email.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/initiate-verification", "host": ["{{base_url}}"], "path": ["auth", "vendor", "initiate-verification"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         },
         {
           "name": "3. Verify Vendor OTP",
-          "event": [{"listen":"test","script":{"exec":[
-            "if (pm.response.code === 200) {",
-            "  const json = pm.response.json();",
-            "  pm.collectionVariables.set('verification_token', json.verification_token);",
-            "}"
-          ],"type":"text/javascript"}}],
-          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
-            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"otp\": \"1234\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/vendor/verify","host":["{{base_url}}"],"path":["auth","vendor","verify"]}
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('verification_token', json.data.verification_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\",\n  \"otp\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/vendor/verify", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - Email Verified",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/verify", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"verification_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InZlbmRvckBleGFtcGxlLmNvbSIsInZlcmlmaWVkIjp0cnVlLCJwdXJwb3NlIjoidmVuZG9yX3JlZ2lzdHJhdGlvbiIsInVzZXJJZCI6IjY2NWYxYTJiM2M0ZDVlNmY3YThiOWMwZCIsImlhdCI6MTcxNzUwMDAwMCwiZXhwIjoxNzE3NTAxODAwfQ.example_signature\"\n  },\n  \"message\": \"Email verified. You can now complete your vendor registration.\"\n}"
+            },
+            {
+              "name": "400 - No Verification Session",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"unknown@example.com\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/verify", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"No verification session found. Please start again.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "400 - Email Already Verified",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"verified@example.com\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/verify", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Email is already verified.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "400 - No OTP Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/verify", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"No OTP found. Please request a new one.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "400 - OTP Expired",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"9999\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/verify", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"OTP has expired. Please request a new one.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "400 - Invalid OTP",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"0000\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/verify", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid OTP.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/verify", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         },
         {
           "name": "4. Complete Vendor Registration (Multipart)",
-          "event": [{"listen":"test","script":{"exec":[
-            "if (pm.response.code === 201) {",
-            "  const json = pm.response.json();",
-            "  pm.collectionVariables.set('auth_token', json.token);",
-            "}"
-          ],"type":"text/javascript"}}],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('auth_token', json.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
-                {"key":"verification_token","value":"{{verification_token}}","type":"text"},
-                {"key":"first_name","value":"Jane","type":"text"},
-                {"key":"last_name","value":"Chef","type":"text"},
-                {"key":"phone_number","value":"08098765432","type":"text"},
-                {"key":"password","value":"VendorPass123!","type":"text"},
-                {"key":"brand_name","value":"Jane's Kitchen","type":"text"},
-                {"key":"brand_category","value":"Nigerian Cuisine","type":"text"},
-                {"key":"brand_description","value":"Authentic Nigerian meals","type":"text"},
-                {"key":"state","value":"Lagos","type":"text"},
-                {"key":"brand_address","value":"123 Victoria Island, Lagos","type":"text"},
-                {"key":"delivery_type","value":"both","type":"text"},
-                {"key":"brand_registration_number","value":"RC-654321","type":"text"},
-                {"key":"operating_hours","value":"[{\"day\":\"Monday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0},{\"day\":\"Tuesday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0},{\"day\":\"Wednesday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0}]","type":"text"},
-                {"key":"brand_logo","type":"file","src":""},
-                {"key":"brand_cover","type":"file","src":""},
-                {"key":"cac_certificate","type":"file","src":""}
+                { "key": "verification_token", "value": "{{verification_token}}", "type": "text" },
+                { "key": "first_name", "value": "Jane", "type": "text" },
+                { "key": "last_name", "value": "Chef", "type": "text" },
+                { "key": "phone_number", "value": "08098765432", "type": "text" },
+                { "key": "password", "value": "VendorPass123!", "type": "text" },
+                { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" },
+                { "key": "brand_category", "value": "Nigerian Cuisine", "type": "text" },
+                { "key": "brand_description", "value": "Authentic Nigerian meals", "type": "text" },
+                { "key": "state", "value": "Lagos", "type": "text" },
+                { "key": "brand_address", "value": "123 Victoria Island, Lagos", "type": "text" },
+                { "key": "delivery_type", "value": "both", "type": "text" },
+                { "key": "brand_registration_number", "value": "RC-654321", "type": "text" },
+                { "key": "operating_hours", "value": "[{\"day\":\"Monday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0},{\"day\":\"Tuesday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0},{\"day\":\"Wednesday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0}]", "type": "text" },
+                { "key": "brand_logo", "type": "file", "src": "" },
+                { "key": "brand_cover", "type": "file", "src": "" },
+                { "key": "cac_certificate", "type": "file", "src": "" }
               ]
             },
-            "url": {"raw":"{{base_url}}/auth/vendor/register","host":["{{base_url}}"],"path":["auth","vendor","register"]}
+            "url": { "raw": "{{base_url}}/auth/vendor/register", "host": ["{{base_url}}"], "path": ["auth", "vendor", "register"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "201 - Registration Successful",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "verification_token", "value": "{{verification_token}}", "type": "text" },
+                    { "key": "first_name", "value": "Jane", "type": "text" },
+                    { "key": "last_name", "value": "Chef", "type": "text" },
+                    { "key": "phone_number", "value": "08098765432", "type": "text" },
+                    { "key": "password", "value": "VendorPass123!", "type": "text" },
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" },
+                    { "key": "brand_category", "value": "Nigerian Cuisine", "type": "text" },
+                    { "key": "brand_description", "value": "Authentic Nigerian meals", "type": "text" },
+                    { "key": "state", "value": "Lagos", "type": "text" },
+                    { "key": "brand_address", "value": "123 Victoria Island, Lagos", "type": "text" },
+                    { "key": "delivery_type", "value": "both", "type": "text" },
+                    { "key": "brand_registration_number", "value": "RC-654321", "type": "text" },
+                    { "key": "operating_hours", "value": "[{\"day\":\"Monday\",\"open_hour\":9,\"open_minute\":0,\"close_hour\":22,\"close_minute\":0}]", "type": "text" },
+                    { "key": "brand_logo", "type": "file", "src": "" },
+                    { "key": "brand_cover", "type": "file", "src": "" },
+                    { "key": "cac_certificate", "type": "file", "src": "" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/register", "host": ["{{base_url}}"], "path": ["auth", "vendor", "register"] }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NWYxYTJiM2M0ZDVlNmY3YThiOWMwZCIsImlhdCI6MTcxNzUwMDAwMCwiZXhwIjoxNzE4Nzk2MDAwfQ.example_signature\",\n    \"user\": {\n      \"_id\": \"665f1a2b3c4d5e6f7a8b9c0d\",\n      \"first_name\": \"Jane\",\n      \"last_name\": \"Chef\",\n      \"email\": \"vendor@example.com\",\n      \"phone_number\": \"08098765432\",\n      \"role\": \"vendor\",\n      \"service_type\": \"food_vendor\",\n      \"verified\": true\n    },\n    \"vendor_profile\": {\n      \"_id\": \"665f1a2b3c4d5e6f7a8b9c0e\",\n      \"user\": \"665f1a2b3c4d5e6f7a8b9c0d\",\n      \"brand_name\": \"Jane's Kitchen\",\n      \"brand_category\": \"Nigerian Cuisine\",\n      \"brand_description\": \"Authentic Nigerian meals\",\n      \"state\": \"Lagos\",\n      \"brand_address\": \"123 Victoria Island, Lagos\",\n      \"business_email\": \"vendor@example.com\",\n      \"brand_image\": \"https://res.cloudinary.com/example/image/upload/v1/vendor-logos/logo.jpg\",\n      \"brand_cover_image\": \"https://res.cloudinary.com/example/image/upload/v1/vendor-covers/cover.jpg\",\n      \"operating_hours\": [\n        {\n          \"day\": \"Monday\",\n          \"open_hour\": 9,\n          \"open_minute\": 0,\n          \"close_hour\": 22,\n          \"close_minute\": 0\n        },\n        {\n          \"day\": \"Tuesday\",\n          \"open_hour\": 9,\n          \"open_minute\": 0,\n          \"close_hour\": 22,\n          \"close_minute\": 0\n        },\n        {\n          \"day\": \"Wednesday\",\n          \"open_hour\": 9,\n          \"open_minute\": 0,\n          \"close_hour\": 22,\n          \"close_minute\": 0\n        }\n      ],\n      \"delivery_type\": \"both\",\n      \"brand_registration_number\": \"RC-654321\",\n      \"cac_certificate\": \"https://res.cloudinary.com/example/image/upload/v1/vendor-cac/cert.pdf\",\n      \"nafdac_status\": \"not_requested\",\n      \"status\": \"pending\",\n      \"createdAt\": \"2025-06-04T12:00:00.000Z\",\n      \"updatedAt\": \"2025-06-04T12:00:00.000Z\"\n    }\n  },\n  \"message\": \"Vendor registration completed successfully.\"\n}"
+            },
+            {
+              "name": "400 - Invalid Or Expired Verification Token",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "verification_token", "value": "expired_or_invalid_token", "type": "text" },
+                    { "key": "first_name", "value": "Jane", "type": "text" },
+                    { "key": "last_name", "value": "Chef", "type": "text" },
+                    { "key": "phone_number", "value": "08098765432", "type": "text" },
+                    { "key": "password", "value": "VendorPass123!", "type": "text" },
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/register", "host": ["{{base_url}}"], "path": ["auth", "vendor", "register"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid or expired verification token.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "400 - User Not Found Or Already Verified",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "verification_token", "value": "{{verification_token}}", "type": "text" },
+                    { "key": "first_name", "value": "Jane", "type": "text" },
+                    { "key": "last_name", "value": "Chef", "type": "text" },
+                    { "key": "phone_number", "value": "08098765432", "type": "text" },
+                    { "key": "password", "value": "VendorPass123!", "type": "text" },
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/register", "host": ["{{base_url}}"], "path": ["auth", "vendor", "register"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User not found or already verified.\",\n  \"error_code\": \"USER_NOT_FOUND\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "409 - Duplicate Phone Number",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "verification_token", "value": "{{verification_token}}", "type": "text" },
+                    { "key": "first_name", "value": "Jane", "type": "text" },
+                    { "key": "last_name", "value": "Chef", "type": "text" },
+                    { "key": "phone_number", "value": "08012345678", "type": "text" },
+                    { "key": "password", "value": "VendorPass123!", "type": "text" },
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/register", "host": ["{{base_url}}"], "path": ["auth", "vendor", "register"] }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"A verified account already exists with this phone number.\",\n  \"error_code\": \"DUPLICATE_PHONE_NUMBER\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "409 - Duplicate Brand Name",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "verification_token", "value": "{{verification_token}}", "type": "text" },
+                    { "key": "first_name", "value": "Jane", "type": "text" },
+                    { "key": "last_name", "value": "Chef", "type": "text" },
+                    { "key": "phone_number", "value": "08098765432", "type": "text" },
+                    { "key": "password", "value": "VendorPass123!", "type": "text" },
+                    { "key": "brand_name", "value": "Existing Brand Name", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/register", "host": ["{{base_url}}"], "path": ["auth", "vendor", "register"] }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"A vendor with this brand name already exists.\",\n  \"error_code\": \"DUPLICATE_BRAND_NAME\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "verification_token", "value": "{{verification_token}}", "type": "text" },
+                    { "key": "first_name", "value": "Jane", "type": "text" },
+                    { "key": "last_name", "value": "Chef", "type": "text" },
+                    { "key": "phone_number", "value": "08098765432", "type": "text" },
+                    { "key": "password", "value": "VendorPass123!", "type": "text" },
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/register", "host": ["{{base_url}}"], "path": ["auth", "vendor", "register"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         },
         {
           "name": "5. Request NAFDAC Seal (Auth)",
           "request": {
-            "auth": {"type":"bearer","bearer":[{"key":"token","value":"{{auth_token}}","type":"string"}]},
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{auth_token}}", "type": "string" }] },
             "method": "POST",
-            "header": [{"key":"Content-Type","value":"application/json"}],
-            "body": {"mode":"raw","raw":"{\n  \"brand_name\": \"Jane's Kitchen\",\n  \"business_email\": \"jane@janeskitchen.com\",\n  \"brand_address\": \"123 Victoria Island, Lagos\",\n  \"brand_phone\": \"08098765432\"\n}"},
-            "url": {"raw":"{{base_url}}/auth/vendor/nafdac-request","host":["{{base_url}}"],"path":["auth","vendor","nafdac-request"]}
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"brand_name\": \"Jane's Kitchen\",\n  \"business_email\": \"jane@janeskitchen.com\",\n  \"brand_address\": \"123 Victoria Island, Lagos\",\n  \"brand_phone\": \"08098765432\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/vendor/nafdac-request", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-request"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - Payment Initialized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"brand_name\": \"Jane's Kitchen\",\n  \"business_email\": \"jane@janeskitchen.com\",\n  \"brand_address\": \"123 Victoria Island, Lagos\",\n  \"brand_phone\": \"08098765432\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-request", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-request"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"payment_url\": \"https://checkout.paystack.com/abc123def456\",\n    \"payment_reference\": \"nafdac_665f1a2b3c4d5e6f7a8b9c0d_1717500000000\"\n  },\n  \"message\": \"NAFDAC seal payment initialized.\"\n}"
+            },
+            {
+              "name": "401 - Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"brand_name\": \"Jane's Kitchen\",\n  \"business_email\": \"jane@janeskitchen.com\",\n  \"brand_address\": \"123 Victoria Island, Lagos\",\n  \"brand_phone\": \"08098765432\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-request", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-request"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized. Please login.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "404 - Vendor Profile Not Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"brand_name\": \"Jane's Kitchen\",\n  \"business_email\": \"jane@janeskitchen.com\",\n  \"brand_address\": \"123 Victoria Island, Lagos\",\n  \"brand_phone\": \"08098765432\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-request", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-request"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Vendor profile not found.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Payment Service Not Configured",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"brand_name\": \"Jane's Kitchen\",\n  \"business_email\": \"jane@janeskitchen.com\",\n  \"brand_address\": \"123 Victoria Island, Lagos\",\n  \"brand_phone\": \"08098765432\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-request", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-request"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Payment service not configured.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Failed To Initialize Payment",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"brand_name\": \"Jane's Kitchen\",\n  \"business_email\": \"jane@janeskitchen.com\",\n  \"brand_address\": \"123 Victoria Island, Lagos\",\n  \"brand_phone\": \"08098765432\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-request", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-request"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Failed to initialize payment.\",\n  \"verified\": true\n}"
+            }
+          ]
         },
         {
           "name": "6. Verify NAFDAC Payment (Auth)",
           "request": {
-            "auth": {"type":"bearer","bearer":[{"key":"token","value":"{{auth_token}}","type":"string"}]},
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{auth_token}}", "type": "string" }] },
             "method": "POST",
-            "header": [{"key":"Content-Type","value":"application/json"}],
-            "body": {"mode":"raw","raw":"{\n  \"payment_reference\": \"nafdac_userId_timestamp\"\n}"},
-            "url": {"raw":"{{base_url}}/auth/vendor/nafdac-verify-payment","host":["{{base_url}}"],"path":["auth","vendor","nafdac-verify-payment"]}
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"payment_reference\": \"nafdac_userId_timestamp\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/vendor/nafdac-verify-payment", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-verify-payment"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - Payment Verified",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"payment_reference\": \"nafdac_665f1a2b3c4d5e6f7a8b9c0d_1717500000000\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-verify-payment", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-verify-payment"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"verified\": true\n  },\n  \"message\": \"Payment verified successfully.\"\n}"
+            },
+            {
+              "name": "200 - Payment Not Yet Verified",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"payment_reference\": \"nafdac_665f1a2b3c4d5e6f7a8b9c0d_1717500000000\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-verify-payment", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-verify-payment"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"verified\": false\n  },\n  \"message\": \"Payment not yet verified.\"\n}"
+            },
+            {
+              "name": "401 - Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"payment_reference\": \"nafdac_userId_timestamp\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-verify-payment", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-verify-payment"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized. Please login.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "400 - Invalid Payment Reference",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"payment_reference\": \"wrong_reference\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-verify-payment", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-verify-payment"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid payment reference.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "404 - Vendor Profile Not Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"payment_reference\": \"nafdac_userId_timestamp\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-verify-payment", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-verify-payment"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Vendor profile not found.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"payment_reference\": \"nafdac_userId_timestamp\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-verify-payment", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-verify-payment"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         },
         {
           "name": "7. Upload NAFDAC Seal (Auth)",
           "request": {
-            "auth": {"type":"bearer","bearer":[{"key":"token","value":"{{auth_token}}","type":"string"}]},
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{auth_token}}", "type": "string" }] },
             "method": "POST",
             "header": [],
-            "body": {"mode":"formdata","formdata":[
-              {"key":"brand_name","value":"Jane's Kitchen","type":"text"},
-              {"key":"brand_email","value":"jane@janeskitchen.com","type":"text"},
-              {"key":"brand_address","value":"123 Victoria Island, Lagos","type":"text"},
-              {"key":"nafdac_seal","type":"file","src":""}
-            ]},
-            "url": {"raw":"{{base_url}}/auth/vendor/nafdac-upload","host":["{{base_url}}"],"path":["auth","vendor","nafdac-upload"]}
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" },
+                { "key": "brand_email", "value": "jane@janeskitchen.com", "type": "text" },
+                { "key": "brand_address", "value": "123 Victoria Island, Lagos", "type": "text" },
+                { "key": "nafdac_seal", "type": "file", "src": "" }
+              ]
+            },
+            "url": { "raw": "{{base_url}}/auth/vendor/nafdac-upload", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-upload"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - Seal Uploaded Successfully",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" },
+                    { "key": "brand_email", "value": "jane@janeskitchen.com", "type": "text" },
+                    { "key": "brand_address", "value": "123 Victoria Island, Lagos", "type": "text" },
+                    { "key": "nafdac_seal", "type": "file", "src": "" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-upload", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-upload"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"vendor_profile\": {\n      \"_id\": \"665f1a2b3c4d5e6f7a8b9c0e\",\n      \"user\": \"665f1a2b3c4d5e6f7a8b9c0d\",\n      \"brand_name\": \"Jane's Kitchen\",\n      \"brand_category\": \"Nigerian Cuisine\",\n      \"brand_description\": \"Authentic Nigerian meals\",\n      \"state\": \"Lagos\",\n      \"brand_address\": \"123 Victoria Island, Lagos\",\n      \"business_email\": \"jane@janeskitchen.com\",\n      \"brand_image\": \"https://res.cloudinary.com/example/image/upload/v1/vendor-logos/logo.jpg\",\n      \"brand_cover_image\": \"https://res.cloudinary.com/example/image/upload/v1/vendor-covers/cover.jpg\",\n      \"operating_hours\": [\n        {\n          \"day\": \"Monday\",\n          \"open_hour\": 9,\n          \"open_minute\": 0,\n          \"close_hour\": 22,\n          \"close_minute\": 0\n        }\n      ],\n      \"delivery_type\": \"both\",\n      \"brand_registration_number\": \"RC-654321\",\n      \"cac_certificate\": \"https://res.cloudinary.com/example/image/upload/v1/vendor-cac/cert.pdf\",\n      \"nafdac_status\": \"uploaded\",\n      \"nafdac_seal_file\": \"https://res.cloudinary.com/example/image/upload/v1/nafdac-seals/seal.pdf\",\n      \"nafdac_brand_name\": \"Jane's Kitchen\",\n      \"nafdac_business_email\": \"jane@janeskitchen.com\",\n      \"nafdac_brand_address\": \"123 Victoria Island, Lagos\",\n      \"nafdac_brand_phone\": \"08098765432\",\n      \"nafdac_payment_reference\": \"nafdac_665f1a2b3c4d5e6f7a8b9c0d_1717500000000\",\n      \"status\": \"pending\",\n      \"createdAt\": \"2025-06-04T12:00:00.000Z\",\n      \"updatedAt\": \"2025-06-04T14:00:00.000Z\"\n    }\n  },\n  \"message\": \"NAFDAC seal uploaded successfully and is pending review.\"\n}"
+            },
+            {
+              "name": "400 - No File Provided",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" },
+                    { "key": "brand_email", "value": "jane@janeskitchen.com", "type": "text" },
+                    { "key": "brand_address", "value": "123 Victoria Island, Lagos", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-upload", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-upload"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"NAFDAC seal file is required.\"\n}"
+            },
+            {
+              "name": "400 - Payment Not Completed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" },
+                    { "key": "brand_email", "value": "jane@janeskitchen.com", "type": "text" },
+                    { "key": "brand_address", "value": "123 Victoria Island, Lagos", "type": "text" },
+                    { "key": "nafdac_seal", "type": "file", "src": "" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-upload", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-upload"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"NAFDAC seal payment must be completed before uploading.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "401 - Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" },
+                    { "key": "brand_email", "value": "jane@janeskitchen.com", "type": "text" },
+                    { "key": "brand_address", "value": "123 Victoria Island, Lagos", "type": "text" },
+                    { "key": "nafdac_seal", "type": "file", "src": "" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-upload", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-upload"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized. Please login.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "404 - Vendor Profile Not Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" },
+                    { "key": "brand_email", "value": "jane@janeskitchen.com", "type": "text" },
+                    { "key": "brand_address", "value": "123 Victoria Island, Lagos", "type": "text" },
+                    { "key": "nafdac_seal", "type": "file", "src": "" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-upload", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-upload"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Vendor profile not found.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "brand_name", "value": "Jane's Kitchen", "type": "text" },
+                    { "key": "brand_email", "value": "jane@janeskitchen.com", "type": "text" },
+                    { "key": "brand_address", "value": "123 Victoria Island, Lagos", "type": "text" },
+                    { "key": "nafdac_seal", "type": "file", "src": "" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/auth/vendor/nafdac-upload", "host": ["{{base_url}}"], "path": ["auth", "vendor", "nafdac-upload"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         }
       ]
     },
@@ -135,17 +833,98 @@
       "item": [
         {
           "name": "Login with Email & Password",
-          "event": [{"listen":"test","script":{"exec":[
-            "if (pm.response.code === 200) {",
-            "  const json = pm.response.json();",
-            "  pm.collectionVariables.set('auth_token', json.data.token);",
-            "}"
-          ],"type":"text/javascript"}}],
-          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
-            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"password\": \"VendorPass123!\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/login","host":["{{base_url}}"],"path":["auth","login"]}
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('auth_token', json.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\",\n  \"password\": \"VendorPass123!\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - Login Successful",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"password\": \"VendorPass123!\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NWYxYTJiM2M0ZDVlNmY3YThiOWMwZCIsImlhdCI6MTcxNzUwMDAwMCwiZXhwIjoxNzE4Nzk2MDAwfQ.example_signature\",\n    \"userId\": \"665f1a2b3c4d5e6f7a8b9c0d\",\n    \"user\": {\n      \"_id\": \"665f1a2b3c4d5e6f7a8b9c0d\",\n      \"first_name\": \"Jane\",\n      \"last_name\": \"Chef\",\n      \"email\": \"vendor@example.com\",\n      \"phone_number\": \"08098765432\",\n      \"role\": \"vendor\",\n      \"service_type\": \"food_vendor\",\n      \"verified\": true,\n      \"createdAt\": \"2025-06-04T12:00:00.000Z\",\n      \"updatedAt\": \"2025-06-04T12:00:00.000Z\"\n    },\n    \"profile\": {\n      \"_id\": \"665f1a2b3c4d5e6f7a8b9c0e\",\n      \"user\": \"665f1a2b3c4d5e6f7a8b9c0d\",\n      \"brand_name\": \"Jane's Kitchen\",\n      \"brand_category\": \"Nigerian Cuisine\",\n      \"brand_description\": \"Authentic Nigerian meals\",\n      \"state\": \"Lagos\",\n      \"brand_address\": \"123 Victoria Island, Lagos\",\n      \"business_email\": \"vendor@example.com\",\n      \"brand_image\": \"https://res.cloudinary.com/example/image/upload/v1/vendor-logos/logo.jpg\",\n      \"brand_cover_image\": \"https://res.cloudinary.com/example/image/upload/v1/vendor-covers/cover.jpg\",\n      \"operating_hours\": [\n        {\n          \"day\": \"Monday\",\n          \"open_hour\": 9,\n          \"open_minute\": 0,\n          \"close_hour\": 22,\n          \"close_minute\": 0\n        }\n      ],\n      \"delivery_type\": \"both\",\n      \"brand_registration_number\": \"RC-654321\",\n      \"cac_certificate\": \"https://res.cloudinary.com/example/image/upload/v1/vendor-cac/cert.pdf\",\n      \"nafdac_status\": \"not_requested\",\n      \"status\": \"pending\",\n      \"createdAt\": \"2025-06-04T12:00:00.000Z\",\n      \"updatedAt\": \"2025-06-04T12:00:00.000Z\"\n    }\n  },\n  \"message\": \"Login successful\"\n}"
+            },
+            {
+              "name": "401 - User Not Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"unknown@example.com\",\n  \"password\": \"SomePass123!\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User Not Found!\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "401 - User Not Verified",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"unverified@example.com\",\n  \"password\": \"VendorPass123!\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User is not verified. Please verify your email before logging in.\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "401 - Wrong Password",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"password\": \"WrongPassword123!\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Wrong Password\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"password\": \"VendorPass123!\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         }
       ]
     },
@@ -154,39 +933,246 @@
       "item": [
         {
           "name": "1. Request OTP",
-          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
-            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/request-otp","host":["{{base_url}}"],"path":["auth","request-otp"]}
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/request-otp", "host": ["{{base_url}}"], "path": ["auth", "request-otp"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - OTP Sent",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/request-otp", "host": ["{{base_url}}"], "path": ["auth", "request-otp"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"otp\": \"5678\"\n  },\n  \"message\": \"OTP sent successfully. Please check your email for the 4-digit OTP code.\"\n}"
+            },
+            {
+              "name": "404 - User Not Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"unknown@example.com\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/request-otp", "host": ["{{base_url}}"], "path": ["auth", "request-otp"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User not found\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/request-otp", "host": ["{{base_url}}"], "path": ["auth", "request-otp"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         },
         {
           "name": "2. Verify OTP",
-          "event": [{"listen":"test","script":{"exec":[
-            "if (pm.response.code === 200) {",
-            "  const json = pm.response.json();",
-            "  pm.collectionVariables.set('auth_token', json.token);",
-            "}"
-          ],"type":"text/javascript"}}],
-          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
-            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"otp\": \"1234\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/verify-otp","host":["{{base_url}}"],"path":["auth","verify-otp"]}
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('auth_token', json.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\",\n  \"otp\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - OTP Verified",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"5678\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NWYxYTJiM2M0ZDVlNmY3YThiOWMwZCIsImlhdCI6MTcxNzUwMDAwMCwiZXhwIjoxNzE4Nzk2MDAwfQ.example_signature\",\n    \"user\": {\n      \"_id\": \"665f1a2b3c4d5e6f7a8b9c0d\",\n      \"first_name\": \"Jane\",\n      \"last_name\": \"Chef\",\n      \"email\": \"vendor@example.com\",\n      \"phone_number\": \"08098765432\",\n      \"role\": \"vendor\",\n      \"service_type\": \"food_vendor\",\n      \"verified\": true,\n      \"createdAt\": \"2025-06-04T12:00:00.000Z\",\n      \"updatedAt\": \"2025-06-04T12:00:00.000Z\"\n    }\n  },\n  \"message\": \"OTP verified successfully\"\n}"
+            },
+            {
+              "name": "400 - Invalid OTP",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"0000\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid OTP\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "400 - OTP Expired",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"5678\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"OTP has expired\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "404 - User Not Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"unknown@example.com\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User not found\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         },
         {
           "name": "3. Set New Password",
-          "event": [{"listen":"test","script":{"exec":[
-            "if (pm.response.code === 200) {",
-            "  const json = pm.response.json();",
-            "  pm.collectionVariables.set('auth_token', json.token);",
-            "}"
-          ],"type":"text/javascript"}}],
-          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
-            "body":{"mode":"raw","raw":"{\n  \"email\": \"{{vendor_email}}\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"1234\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/reset-password","host":["{{base_url}}"],"path":["auth","reset-password"]}
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('auth_token', json.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"1234\"\n}" },
+            "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 - Password Changed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"5678\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NWYxYTJiM2M0ZDVlNmY3YThiOWMwZCIsImlhdCI6MTcxNzUwMDAwMCwiZXhwIjoxNzE4Nzk2MDAwfQ.example_signature\",\n    \"user\": {\n      \"_id\": \"665f1a2b3c4d5e6f7a8b9c0d\",\n      \"first_name\": \"Jane\",\n      \"last_name\": \"Chef\",\n      \"email\": \"vendor@example.com\",\n      \"phone_number\": \"08098765432\",\n      \"role\": \"vendor\",\n      \"service_type\": \"food_vendor\",\n      \"verified\": true,\n      \"createdAt\": \"2025-06-04T12:00:00.000Z\",\n      \"updatedAt\": \"2025-06-04T12:00:00.000Z\"\n    }\n  },\n  \"message\": \"New Password Changed Successfully\"\n}"
+            },
+            {
+              "name": "400 - Passwords Do Not Match",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"DifferentPass123!\",\n  \"otp\": \"5678\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Passwords do not match\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "400 - Invalid OTP",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"0000\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid OTP\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "404 - User Not Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"unknown@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User not found\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"1234\"\n}" },
+                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
         }
       ]
     }
