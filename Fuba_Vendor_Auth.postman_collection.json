@@ -851,7 +851,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\",\n  \"password\": \"VendorPass123!\"\n}" },
-            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+            "url": { "raw": "{{base_url}}/auth/vendor/login", "host": ["{{base_url}}"], "path": ["auth", "vendor", "login"] }
           },
           "response": [
             {
@@ -860,7 +860,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"password\": \"VendorPass123!\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/login", "host": ["{{base_url}}"], "path": ["auth", "vendor", "login"] }
               },
               "status": "OK",
               "code": 200,
@@ -874,7 +874,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"unknown@example.com\",\n  \"password\": \"SomePass123!\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/login", "host": ["{{base_url}}"], "path": ["auth", "vendor", "login"] }
               },
               "status": "Unauthorized",
               "code": 401,
@@ -888,7 +888,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"unverified@example.com\",\n  \"password\": \"VendorPass123!\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/login", "host": ["{{base_url}}"], "path": ["auth", "vendor", "login"] }
               },
               "status": "Unauthorized",
               "code": 401,
@@ -902,7 +902,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"password\": \"WrongPassword123!\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/login", "host": ["{{base_url}}"], "path": ["auth", "vendor", "login"] }
               },
               "status": "Unauthorized",
               "code": 401,
@@ -916,7 +916,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"password\": \"VendorPass123!\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/login", "host": ["{{base_url}}"], "path": ["auth", "vendor", "login"] }
               },
               "status": "Internal Server Error",
               "code": 500,
@@ -937,7 +937,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\"\n}" },
-            "url": { "raw": "{{base_url}}/auth/request-otp", "host": ["{{base_url}}"], "path": ["auth", "request-otp"] }
+            "url": { "raw": "{{base_url}}/auth/vendor/request-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "request-otp"] }
           },
           "response": [
             {
@@ -946,7 +946,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/request-otp", "host": ["{{base_url}}"], "path": ["auth", "request-otp"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/request-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "request-otp"] }
               },
               "status": "OK",
               "code": 200,
@@ -960,7 +960,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"unknown@example.com\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/request-otp", "host": ["{{base_url}}"], "path": ["auth", "request-otp"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/request-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "request-otp"] }
               },
               "status": "Not Found",
               "code": 404,
@@ -974,7 +974,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/request-otp", "host": ["{{base_url}}"], "path": ["auth", "request-otp"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/request-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "request-otp"] }
               },
               "status": "Internal Server Error",
               "code": 500,
@@ -1004,7 +1004,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\",\n  \"otp\": \"1234\"\n}" },
-            "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+            "url": { "raw": "{{base_url}}/auth/vendor/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify-otp"] }
           },
           "response": [
             {
@@ -1013,7 +1013,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"5678\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify-otp"] }
               },
               "status": "OK",
               "code": 200,
@@ -1027,7 +1027,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"0000\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify-otp"] }
               },
               "status": "Bad Request",
               "code": 400,
@@ -1041,7 +1041,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"5678\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify-otp"] }
               },
               "status": "Bad Request",
               "code": 400,
@@ -1055,7 +1055,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"unknown@example.com\",\n  \"otp\": \"1234\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify-otp"] }
               },
               "status": "Not Found",
               "code": 404,
@@ -1069,7 +1069,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"otp\": \"1234\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "vendor", "verify-otp"] }
               },
               "status": "Internal Server Error",
               "code": 500,
@@ -1099,7 +1099,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{vendor_email}}\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"1234\"\n}" },
-            "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+            "url": { "raw": "{{base_url}}/auth/vendor/reset-password", "host": ["{{base_url}}"], "path": ["auth", "vendor", "reset-password"] }
           },
           "response": [
             {
@@ -1108,7 +1108,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"5678\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/reset-password", "host": ["{{base_url}}"], "path": ["auth", "vendor", "reset-password"] }
               },
               "status": "OK",
               "code": 200,
@@ -1122,7 +1122,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"DifferentPass123!\",\n  \"otp\": \"5678\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/reset-password", "host": ["{{base_url}}"], "path": ["auth", "vendor", "reset-password"] }
               },
               "status": "Bad Request",
               "code": 400,
@@ -1136,7 +1136,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"0000\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/reset-password", "host": ["{{base_url}}"], "path": ["auth", "vendor", "reset-password"] }
               },
               "status": "Bad Request",
               "code": 400,
@@ -1150,7 +1150,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"unknown@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"1234\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/reset-password", "host": ["{{base_url}}"], "path": ["auth", "vendor", "reset-password"] }
               },
               "status": "Not Found",
               "code": 404,
@@ -1164,7 +1164,7 @@
                 "method": "POST",
                 "header": [{ "key": "Content-Type", "value": "application/json" }],
                 "body": { "mode": "raw", "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"new_password\": \"NewVendorPass123!\",\n  \"confirm_password\": \"NewVendorPass123!\",\n  \"otp\": \"1234\"\n}" },
-                "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+                "url": { "raw": "{{base_url}}/auth/vendor/reset-password", "host": ["{{base_url}}"], "path": ["auth", "vendor", "reset-password"] }
               },
               "status": "Internal Server Error",
               "code": 500,

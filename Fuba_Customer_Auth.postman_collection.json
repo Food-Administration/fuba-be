@@ -21,7 +21,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{test_email}}\"\n}" },
-            "url": { "raw": "{{base_url}}/auth/initiate-verification", "host": ["{{base_url}}"], "path": ["auth","initiate-verification"] },
+            "url": { "raw": "{{base_url}}/auth/customer/initiate-verification", "host": ["{{base_url}}"], "path": ["auth","customer","initiate-verification"] },
             "description": "Send a 4-digit OTP to the customer's email to start registration."
           },
           "response": []
@@ -44,7 +44,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"otp\": \"1234\"\n}" },
-            "url": { "raw": "{{base_url}}/auth/verify-email", "host": ["{{base_url}}"], "path": ["auth","verify-email"] },
+            "url": { "raw": "{{base_url}}/auth/customer/verify-email", "host": ["{{base_url}}"], "path": ["auth","customer","verify-email"] },
             "description": "Verify the 4-digit OTP sent to the customer's email."
           },
           "response": []
@@ -67,7 +67,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"verification_token\": \"{{verification_token}}\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"phone_number\": \"08012345678\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"consumer\"\n}" },
-            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth","register"] },
+            "url": { "raw": "{{base_url}}/auth/customer/register", "host": ["{{base_url}}"], "path": ["auth","customer","register"] },
             "description": "Complete customer registration after verification."
           },
           "response": []
@@ -78,7 +78,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{test_email}}\"\n}" },
-            "url": { "raw": "{{base_url}}/auth/resend-verification-email", "host": ["{{base_url}}"], "path": ["auth","resend-verification-email"] }
+            "url": { "raw": "{{base_url}}/auth/customer/resend-verification-email", "host": ["{{base_url}}"], "path": ["auth","customer","resend-verification-email"] }
           },
           "response": []
         }
@@ -102,7 +102,7 @@
             "method": "POST",
             "header": [{"key":"Content-Type","value":"application/json"}],
             "body": {"mode":"raw","raw":"{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"SecurePass123!\"\n}"},
-            "url": {"raw":"{{base_url}}/auth/login","host":["{{base_url}}"],"path":["auth","login"]}
+            "url": {"raw":"{{base_url}}/auth/customer/login","host":["{{base_url}}"],"path":["auth","customer","login"]}
           },
           "response": []
         },
@@ -116,7 +116,7 @@
           ],"type":"text/javascript"}}],
           "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
             "body":{"mode":"raw","raw":"{\n  \"idToken\": \"your_google_id_token_here\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/google","host":["{{base_url}}"],"path":["auth","google"]}
+            "url":{"raw":"{{base_url}}/auth/customer/google","host":["{{base_url}}"],"path":["auth","customer","google"]}
           },
           "response": []
         },
@@ -130,7 +130,7 @@
           ],"type":"text/javascript"}}],
           "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
             "body":{"mode":"raw","raw":"{\n  \"idToken\": \"your_google_id_token_here\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/google-login","host":["{{base_url}}"],"path":["auth","google-login"]}
+            "url":{"raw":"{{base_url}}/auth/customer/google-login","host":["{{base_url}}"],"path":["auth","customer","google-login"]}
           },
           "response": []
         }
@@ -143,7 +143,7 @@
           "name": "1. Request OTP",
           "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
             "body":{"mode":"raw","raw":"{\n  \"email\": \"{{test_email}}\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/request-otp","host":["{{base_url}}"],"path":["auth","request-otp"]}
+            "url":{"raw":"{{base_url}}/auth/customer/request-otp","host":["{{base_url}}"],"path":["auth","customer","request-otp"]}
           },
           "response": []
         },
@@ -157,7 +157,7 @@
           ],"type":"text/javascript"}}],
           "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
             "body":{"mode":"raw","raw":"{\n  \"email\": \"{{test_email}}\",\n  \"otp\": \"1234\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/verify-otp","host":["{{base_url}}"],"path":["auth","verify-otp"]}
+            "url":{"raw":"{{base_url}}/auth/customer/verify-otp","host":["{{base_url}}"],"path":["auth","customer","verify-otp"]}
           },
           "response": []
         },
@@ -171,7 +171,7 @@
           ],"type":"text/javascript"}}],
           "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],
             "body":{"mode":"raw","raw":"{\n  \"email\": \"{{test_email}}\",\n  \"new_password\": \"NewSecurePass123!\",\n  \"confirm_password\": \"NewSecurePass123!\",\n  \"otp\": \"1234\"\n}"},
-            "url":{"raw":"{{base_url}}/auth/reset-password","host":["{{base_url}}"],"path":["auth","reset-password"]}
+            "url":{"raw":"{{base_url}}/auth/customer/reset-password","host":["{{base_url}}"],"path":["auth","customer","reset-password"]}
           },
           "response": []
         },
@@ -182,7 +182,7 @@
             "method": "POST",
             "header": [{"key":"Content-Type","value":"application/json"}],
             "body": {"mode":"raw","raw":"{\n  \"currentPassword\": \"SecurePass123!\",\n  \"newPassword\": \"NewSecurePass456!\"\n}"},
-            "url": {"raw":"{{base_url}}/auth/change-password","host":["{{base_url}}"],"path":["auth","change-password"]}
+            "url": {"raw":"{{base_url}}/auth/customer/change-password","host":["{{base_url}}"],"path":["auth","customer","change-password"]}
           },
           "response": []
         }
