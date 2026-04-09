@@ -1,0 +1,678 @@
+{
+  "info": {
+    "_postman_id": "fuba-meal-api-collection",
+    "name": "Fuba Meal API",
+    "description": "Vendor meal management: create, read, update, delete meals with image uploads, stock toggle, and filtering.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "auth_token", "value": "", "type": "string" },
+    { "key": "meal_id", "value": "", "type": "string" },
+    { "key": "vendor_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Meal Management",
+      "item": [
+        {
+          "name": "1. Create Meal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var json = pm.response.json();",
+                  "  pm.collectionVariables.set('meal_id', json.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "Jollof Rice & Chicken", "type": "text" },
+                { "key": "description", "value": "Smoky party-style jollof rice served with grilled chicken", "type": "text" },
+                { "key": "serviceType", "value": "regular", "type": "text" },
+                { "key": "category", "value": "local", "type": "text" },
+                { "key": "price", "value": "3500", "type": "text" },
+                { "key": "priceDescription", "value": "Serves 1 person", "type": "text" },
+                { "key": "combo", "value": "[{\"name\": \"Jollof Rice\", \"quantity\": 1}, {\"name\": \"Grilled Chicken\", \"quantity\": 1}, {\"name\": \"Coleslaw\", \"quantity\": 1}]", "type": "text" },
+                { "key": "isInStock", "value": "true", "type": "text" },
+                { "key": "image", "type": "file", "src": "" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/meal",
+              "host": ["{{base_url}}"],
+              "path": ["meal"]
+            },
+            "description": "Create a new meal. Requires vendor authentication. Image upload is optional."
+          },
+          "response": [
+            {
+              "name": "201 - Meal Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "name", "value": "Jollof Rice & Chicken", "type": "text" },
+                    { "key": "description", "value": "Smoky party-style jollof rice served with grilled chicken", "type": "text" },
+                    { "key": "serviceType", "value": "regular", "type": "text" },
+                    { "key": "category", "value": "local", "type": "text" },
+                    { "key": "price", "value": "3500", "type": "text" },
+                    { "key": "priceDescription", "value": "Serves 1 person", "type": "text" },
+                    { "key": "combo", "value": "[{\"name\": \"Jollof Rice\", \"quantity\": 1}, {\"name\": \"Grilled Chicken\", \"quantity\": 1}]", "type": "text" },
+                    { "key": "isInStock", "value": "true", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/meal", "host": ["{{base_url}}"], "path": ["meal"] }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"663f1a2b3c4d5e6f7a8b9c0d\",\n    \"vendor\": \"663f1a2b3c4d5e6f7a8b9c01\",\n    \"name\": \"Jollof Rice & Chicken\",\n    \"description\": \"Smoky party-style jollof rice served with grilled chicken\",\n    \"serviceType\": \"regular\",\n    \"category\": \"local\",\n    \"price\": 3500,\n    \"priceDescription\": \"Serves 1 person\",\n    \"combo\": [\n      { \"name\": \"Jollof Rice\", \"quantity\": 1 },\n      { \"name\": \"Grilled Chicken\", \"quantity\": 1 }\n    ],\n    \"isInStock\": true,\n    \"image\": \"https://res.cloudinary.com/example/image/upload/meals/images/jollof-rice.jpg\",\n    \"createdAt\": \"2026-04-09T10:30:00.000Z\",\n    \"updatedAt\": \"2026-04-09T10:30:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "400 - Missing Required Fields",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "name", "value": "Jollof Rice", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/meal", "host": ["{{base_url}}"], "path": ["meal"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"description is required\"\n}"
+            },
+            {
+              "name": "400 - Invalid Service Type",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "name", "value": "Test", "type": "text" },
+                    { "key": "description", "value": "Test", "type": "text" },
+                    { "key": "serviceType", "value": "invalid", "type": "text" },
+                    { "key": "category", "value": "local", "type": "text" },
+                    { "key": "price", "value": "1000", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/meal", "host": ["{{base_url}}"], "path": ["meal"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"serviceType must be one of: regular, premium, executive\"\n}"
+            },
+            {
+              "name": "401 - Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "name", "value": "Jollof Rice", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{base_url}}/meal", "host": ["{{base_url}}"], "path": ["meal"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized\",\n  \"verified\": true\n}"
+            },
+            {
+              "name": "500 - Internal Server Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": { "raw": "{{base_url}}/meal", "host": ["{{base_url}}"], "path": ["meal"] }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Internal Server Error\",\n  \"verified\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "2. Get All Meals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/meal?offset=0&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["meal"],
+              "query": [
+                { "key": "offset", "value": "0" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "serviceType", "value": "regular", "disabled": true },
+                { "key": "category", "value": "local", "disabled": true }
+              ]
+            },
+            "description": "Get all meals with optional filtering by search, serviceType, and category. Supports pagination."
+          },
+          "response": [
+            {
+              "name": "200 - Meals Retrieved",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/meal?offset=0&limit=10",
+                  "host": ["{{base_url}}"],
+                  "path": ["meal"],
+                  "query": [
+                    { "key": "offset", "value": "0" },
+                    { "key": "limit", "value": "10" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"663f1a2b3c4d5e6f7a8b9c0d\",\n      \"vendor\": {\n        \"_id\": \"663f1a2b3c4d5e6f7a8b9c01\",\n        \"first_name\": \"John\",\n        \"last_name\": \"Doe\",\n        \"email\": \"vendor@example.com\"\n      },\n      \"name\": \"Jollof Rice & Chicken\",\n      \"description\": \"Smoky party-style jollof rice served with grilled chicken\",\n      \"serviceType\": \"regular\",\n      \"category\": \"local\",\n      \"price\": 3500,\n      \"priceDescription\": \"Serves 1 person\",\n      \"combo\": [\n        { \"name\": \"Jollof Rice\", \"quantity\": 1 },\n        { \"name\": \"Grilled Chicken\", \"quantity\": 1 }\n      ],\n      \"isInStock\": true,\n      \"image\": \"https://res.cloudinary.com/example/image/upload/meals/images/jollof-rice.jpg\",\n      \"createdAt\": \"2026-04-09T10:30:00.000Z\",\n      \"updatedAt\": \"2026-04-09T10:30:00.000Z\"\n    }\n  ],\n  \"meta\": {\n    \"total\": 1,\n    \"offset\": 0,\n    \"limit\": 10\n  }\n}"
+            },
+            {
+              "name": "200 - Empty Results",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/meal?search=nonexistent",
+                  "host": ["{{base_url}}"],
+                  "path": ["meal"],
+                  "query": [{ "key": "search", "value": "nonexistent" }]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": [],\n  \"meta\": {\n    \"total\": 0,\n    \"offset\": 0,\n    \"limit\": 10\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "3. Get Meal by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/meal/{{meal_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["meal", "{{meal_id}}"]
+            },
+            "description": "Get a single meal by its ID."
+          },
+          "response": [
+            {
+              "name": "200 - Meal Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"663f1a2b3c4d5e6f7a8b9c0d\",\n    \"vendor\": {\n      \"_id\": \"663f1a2b3c4d5e6f7a8b9c01\",\n      \"first_name\": \"John\",\n      \"last_name\": \"Doe\",\n      \"email\": \"vendor@example.com\"\n    },\n    \"name\": \"Jollof Rice & Chicken\",\n    \"description\": \"Smoky party-style jollof rice served with grilled chicken\",\n    \"serviceType\": \"regular\",\n    \"category\": \"local\",\n    \"price\": 3500,\n    \"priceDescription\": \"Serves 1 person\",\n    \"combo\": [\n      { \"name\": \"Jollof Rice\", \"quantity\": 1 },\n      { \"name\": \"Grilled Chicken\", \"quantity\": 1 }\n    ],\n    \"isInStock\": true,\n    \"image\": \"https://res.cloudinary.com/example/image/upload/meals/images/jollof-rice.jpg\",\n    \"createdAt\": \"2026-04-09T10:30:00.000Z\",\n    \"updatedAt\": \"2026-04-09T10:30:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "404 - Meal Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{base_url}}/meal/663f1a2b3c4d5e6f7a8b0000", "host": ["{{base_url}}"], "path": ["meal", "663f1a2b3c4d5e6f7a8b0000"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Meal not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "4. Get Meals by Vendor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/meal/vendor/{{vendor_id}}?offset=0&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["meal", "vendor", "{{vendor_id}}"],
+              "query": [
+                { "key": "offset", "value": "0" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Get all meals by a specific vendor ID."
+          },
+          "response": [
+            {
+              "name": "200 - Vendor Meals Retrieved",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/meal/vendor/{{vendor_id}}?offset=0&limit=10",
+                  "host": ["{{base_url}}"],
+                  "path": ["meal", "vendor", "{{vendor_id}}"],
+                  "query": [
+                    { "key": "offset", "value": "0" },
+                    { "key": "limit", "value": "10" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"663f1a2b3c4d5e6f7a8b9c0d\",\n      \"vendor\": {\n        \"_id\": \"663f1a2b3c4d5e6f7a8b9c01\",\n        \"first_name\": \"John\",\n        \"last_name\": \"Doe\",\n        \"email\": \"vendor@example.com\"\n      },\n      \"name\": \"Jollof Rice & Chicken\",\n      \"description\": \"Smoky party-style jollof rice served with grilled chicken\",\n      \"serviceType\": \"regular\",\n      \"category\": \"local\",\n      \"price\": 3500,\n      \"priceDescription\": \"Serves 1 person\",\n      \"combo\": [\n        { \"name\": \"Jollof Rice\", \"quantity\": 1 },\n        { \"name\": \"Grilled Chicken\", \"quantity\": 1 }\n      ],\n      \"isInStock\": true,\n      \"createdAt\": \"2026-04-09T10:30:00.000Z\",\n      \"updatedAt\": \"2026-04-09T10:30:00.000Z\"\n    }\n  ],\n  \"meta\": {\n    \"total\": 1,\n    \"offset\": 0,\n    \"limit\": 10\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "5. Get My Meals (Vendor)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/meal/my-meals?offset=0&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["meal", "my-meals"],
+              "query": [
+                { "key": "offset", "value": "0" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Get all meals belonging to the authenticated vendor."
+          },
+          "response": [
+            {
+              "name": "200 - My Meals Retrieved",
+              "originalRequest": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": {
+                  "raw": "{{base_url}}/meal/my-meals?offset=0&limit=10",
+                  "host": ["{{base_url}}"],
+                  "path": ["meal", "my-meals"],
+                  "query": [
+                    { "key": "offset", "value": "0" },
+                    { "key": "limit", "value": "10" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"_id\": \"663f1a2b3c4d5e6f7a8b9c0d\",\n      \"vendor\": {\n        \"_id\": \"663f1a2b3c4d5e6f7a8b9c01\",\n        \"first_name\": \"John\",\n        \"last_name\": \"Doe\",\n        \"email\": \"vendor@example.com\"\n      },\n      \"name\": \"Jollof Rice & Chicken\",\n      \"description\": \"Smoky party-style jollof rice served with grilled chicken\",\n      \"serviceType\": \"regular\",\n      \"category\": \"local\",\n      \"price\": 3500,\n      \"priceDescription\": \"Serves 1 person\",\n      \"combo\": [\n        { \"name\": \"Jollof Rice\", \"quantity\": 1 },\n        { \"name\": \"Grilled Chicken\", \"quantity\": 1 }\n      ],\n      \"isInStock\": true,\n      \"createdAt\": \"2026-04-09T10:30:00.000Z\",\n      \"updatedAt\": \"2026-04-09T10:30:00.000Z\"\n    }\n  ],\n  \"meta\": {\n    \"total\": 1,\n    \"offset\": 0,\n    \"limit\": 10\n  }\n}"
+            },
+            {
+              "name": "401 - Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{base_url}}/meal/my-meals", "host": ["{{base_url}}"], "path": ["meal", "my-meals"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized\",\n  \"verified\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "6. Update Meal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jollof Rice & Grilled Chicken (Updated)\",\n  \"price\": 4000,\n  \"priceDescription\": \"Large portion, serves 1-2 persons\",\n  \"combo\": [\n    { \"name\": \"Jollof Rice\", \"quantity\": 1 },\n    { \"name\": \"Grilled Chicken\", \"quantity\": 2 },\n    { \"name\": \"Coleslaw\", \"quantity\": 1 },\n    { \"name\": \"Plantain\", \"quantity\": 2 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/meal/{{meal_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["meal", "{{meal_id}}"]
+            },
+            "description": "Update a meal. Only the meal owner (vendor) can update."
+          },
+          "response": [
+            {
+              "name": "200 - Meal Updated",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Jollof Rice & Grilled Chicken (Updated)\",\n  \"price\": 4000\n}"
+                },
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"663f1a2b3c4d5e6f7a8b9c0d\",\n    \"vendor\": \"663f1a2b3c4d5e6f7a8b9c01\",\n    \"name\": \"Jollof Rice & Grilled Chicken (Updated)\",\n    \"description\": \"Smoky party-style jollof rice served with grilled chicken\",\n    \"serviceType\": \"regular\",\n    \"category\": \"local\",\n    \"price\": 4000,\n    \"priceDescription\": \"Large portion, serves 1-2 persons\",\n    \"combo\": [\n      { \"name\": \"Jollof Rice\", \"quantity\": 1 },\n      { \"name\": \"Grilled Chicken\", \"quantity\": 2 },\n      { \"name\": \"Coleslaw\", \"quantity\": 1 },\n      { \"name\": \"Plantain\", \"quantity\": 2 }\n    ],\n    \"isInStock\": true,\n    \"createdAt\": \"2026-04-09T10:30:00.000Z\",\n    \"updatedAt\": \"2026-04-09T11:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "403 - Not Authorized",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": { "mode": "raw", "raw": "{ \"price\": 5000 }" },
+                "url": { "raw": "{{base_url}}/meal/663f1a2b3c4d5e6f7a8b0000", "host": ["{{base_url}}"], "path": ["meal", "663f1a2b3c4d5e6f7a8b0000"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorized to update this meal\"\n}"
+            },
+            {
+              "name": "404 - Meal Not Found",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": { "mode": "raw", "raw": "{ \"price\": 5000 }" },
+                "url": { "raw": "{{base_url}}/meal/663f1a2b3c4d5e6f7a8b0000", "host": ["{{base_url}}"], "path": ["meal", "663f1a2b3c4d5e6f7a8b0000"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Meal not found\"\n}"
+            },
+            {
+              "name": "400 - Invalid Category",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{auth_token}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": { "mode": "raw", "raw": "{ \"category\": \"invalid\" }" },
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"category must be one of: foreign, local\"\n}"
+            },
+            {
+              "name": "401 - Unauthorized",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": { "mode": "raw", "raw": "{ \"price\": 5000 }" },
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized\",\n  \"verified\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "7. Update Meal Image",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "image", "type": "file", "src": "" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/meal/{{meal_id}}/image",
+              "host": ["{{base_url}}"],
+              "path": ["meal", "{{meal_id}}", "image"]
+            },
+            "description": "Update the image of a meal. Only the meal owner (vendor) can update."
+          },
+          "response": [
+            {
+              "name": "200 - Image Updated",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [{ "key": "image", "type": "file", "src": "" }]
+                },
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}/image", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}", "image"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"663f1a2b3c4d5e6f7a8b9c0d\",\n    \"vendor\": \"663f1a2b3c4d5e6f7a8b9c01\",\n    \"name\": \"Jollof Rice & Chicken\",\n    \"image\": \"https://res.cloudinary.com/example/image/upload/meals/images/new-image.jpg\",\n    \"isInStock\": true\n  },\n  \"message\": \"Meal image updated successfully\"\n}"
+            },
+            {
+              "name": "400 - No Image Uploaded",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}/image", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}", "image"] }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"No image file uploaded\"\n}"
+            },
+            {
+              "name": "403 - Not Authorized",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [{ "key": "image", "type": "file", "src": "" }]
+                },
+                "url": { "raw": "{{base_url}}/meal/663f1a2b3c4d5e6f7a8b0000/image", "host": ["{{base_url}}"], "path": ["meal", "663f1a2b3c4d5e6f7a8b0000", "image"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorized to update this meal\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "8. Toggle Meal Stock",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/meal/{{meal_id}}/stock",
+              "host": ["{{base_url}}"],
+              "path": ["meal", "{{meal_id}}", "stock"]
+            },
+            "description": "Toggle the stock status of a meal (in stock / out of stock). Only the meal owner can toggle."
+          },
+          "response": [
+            {
+              "name": "200 - Stock Toggled (Out of Stock)",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}/stock", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}", "stock"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"663f1a2b3c4d5e6f7a8b9c0d\",\n    \"name\": \"Jollof Rice & Chicken\",\n    \"isInStock\": false\n  },\n  \"message\": \"Meal marked as out of stock\"\n}"
+            },
+            {
+              "name": "200 - Stock Toggled (In Stock)",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}/stock", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}", "stock"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"663f1a2b3c4d5e6f7a8b9c0d\",\n    \"name\": \"Jollof Rice & Chicken\",\n    \"isInStock\": true\n  },\n  \"message\": \"Meal marked as in stock\"\n}"
+            },
+            {
+              "name": "403 - Not Authorized",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": { "raw": "{{base_url}}/meal/663f1a2b3c4d5e6f7a8b0000/stock", "host": ["{{base_url}}"], "path": ["meal", "663f1a2b3c4d5e6f7a8b0000", "stock"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorized to update this meal\"\n}"
+            },
+            {
+              "name": "404 - Meal Not Found",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": { "raw": "{{base_url}}/meal/663f1a2b3c4d5e6f7a8b0000/stock", "host": ["{{base_url}}"], "path": ["meal", "663f1a2b3c4d5e6f7a8b0000", "stock"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Meal not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "9. Delete Meal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{auth_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/meal/{{meal_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["meal", "{{meal_id}}"]
+            },
+            "description": "Delete a meal and its associated image. Only the meal owner (vendor) can delete."
+          },
+          "response": [
+            {
+              "name": "200 - Meal Deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}"] }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Meal deleted successfully\"\n}"
+            },
+            {
+              "name": "403 - Not Authorized",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": { "raw": "{{base_url}}/meal/663f1a2b3c4d5e6f7a8b0000", "host": ["{{base_url}}"], "path": ["meal", "663f1a2b3c4d5e6f7a8b0000"] }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorized to delete this meal\"\n}"
+            },
+            {
+              "name": "404 - Meal Not Found",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [{ "key": "Authorization", "value": "Bearer {{auth_token}}" }],
+                "url": { "raw": "{{base_url}}/meal/663f1a2b3c4d5e6f7a8b0000", "host": ["{{base_url}}"], "path": ["meal", "663f1a2b3c4d5e6f7a8b0000"] }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Meal not found\"\n}"
+            },
+            {
+              "name": "401 - Unauthorized",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": { "raw": "{{base_url}}/meal/{{meal_id}}", "host": ["{{base_url}}"], "path": ["meal", "{{meal_id}}"] }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized\",\n  \"verified\": true\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
