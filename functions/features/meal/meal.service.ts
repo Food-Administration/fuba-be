@@ -6,7 +6,8 @@ import cloudinary from "../../config/cloudinary";
 class MealService {
   async create(data: Partial<IMeal>): Promise<IMeal> {
     const meal = new Meal(data);
-    return await meal.save();
+    const saved = await meal.save();
+    return await saved.populate("vendor", "first_name last_name email");
   }
 
   async get(
@@ -31,7 +32,7 @@ class MealService {
 
   async update(id: string, data: Partial<IMeal>): Promise<IMeal | null> {
     if (!Types.ObjectId.isValid(id)) return null;
-    return await Meal.findByIdAndUpdate(id, data, { new: true });
+    return await Meal.findByIdAndUpdate(id, data, { new: true }).populate("vendor", "first_name last_name email");
   }
 
   async delete(id: string): Promise<IMeal | null> {
@@ -70,7 +71,7 @@ class MealService {
       });
     }
 
-    return savedMeal;
+    return await savedMeal.populate("vendor", "first_name last_name email");
   }
 
   async updateImage(
@@ -101,7 +102,7 @@ class MealService {
       associatedId: id,
     });
 
-    return await Meal.findByIdAndUpdate(id, { image: file.path }, { new: true });
+    return await Meal.findByIdAndUpdate(id, { image: file.path }, { new: true }).populate("vendor", "first_name last_name email");
   }
 
   async deleteWithImage(id: string): Promise<IMeal | null> {
@@ -129,7 +130,8 @@ class MealService {
     const meal = await Meal.findById(id);
     if (!meal) return null;
     meal.isInStock = !meal.isInStock;
-    return await meal.save();
+    const saved = await meal.save();
+    return await saved.populate("vendor", "first_name last_name email");
   }
 }
 

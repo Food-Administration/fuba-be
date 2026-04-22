@@ -4,6 +4,7 @@ import VendorProfile from '../vendor/vendor.model';
 import RestaurantApplication from './restaurant_application.model';
 import EmailService from '../mail/email.service';
 import jwt from 'jsonwebtoken';
+import type { StringValue } from 'ms';
 import CustomError from '../../utils/customError';
 import bcrypt from 'bcrypt';
 import { auth } from '../../config/firebase';
@@ -173,7 +174,7 @@ class AuthService {
 
     // Generate auth token
     const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {
-      expiresIn: '360h',
+      expiresIn: process.env.TOKEN_EXPIRY as StringValue,
     });
 
     return { user, token };
@@ -259,7 +260,7 @@ class AuthService {
 
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {
-      expiresIn: '360h',
+      expiresIn: process.env.TOKEN_EXPIRY as StringValue,
     });
 
     // Prepare the response
@@ -461,7 +462,7 @@ class AuthService {
 
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {
-      expiresIn: '360h',
+      expiresIn: process.env.TOKEN_EXPIRY as StringValue,
     });
 
     const userObj = user.toObject() as any;
@@ -512,7 +513,7 @@ class AuthService {
 
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {
-      expiresIn: '360h',
+      expiresIn: process.env.TOKEN_EXPIRY as StringValue,
     });
 
     const userObj = user.toObject() as any;

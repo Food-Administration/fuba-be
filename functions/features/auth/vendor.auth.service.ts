@@ -233,7 +233,7 @@ class VendorAuthService {
         });
 
         const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {
-            expiresIn: '360h'
+            expiresIn: process.env.TOKEN_EXPIRY
         });
 
         return { user, token, vendor_profile };
