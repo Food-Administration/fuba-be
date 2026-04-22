@@ -6,6 +6,7 @@ import RestaurantApplication, {
 } from './restaurant_application.model';
 import EmailService from '../mail/email.service';
 import jwt from 'jsonwebtoken';
+import type { StringValue } from 'ms';
 import bcrypt from 'bcrypt';
 import speakeasy from 'speakeasy';
 import CustomError from '../../utils/customError';
@@ -195,7 +196,7 @@ class RestaurantAuthService {
         });
 
         const token = jwt.sign({ id: user._id }, process.env.TOKEN_SECRET_KEY!, {
-            expiresIn: process.env.TOKEN_EXPIRY
+            expiresIn: process.env.TOKEN_EXPIRY as StringValue
         });
 
         return { user, token, application };
