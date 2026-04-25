@@ -120,6 +120,7 @@ class MealController {
 
   update = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user?.id;
+    const file = req.file;
     const payload: any = { ...req.body };
 
     // Prevent changing vendor ownership
@@ -161,7 +162,7 @@ class MealController {
       return;
     }
 
-    const meal = await MealService.update(req.params.id, payload);
+    const meal = await MealService.updateWithImage(req.params.id, payload, file, userId);
     res.status(200).json({ success: true, data: meal });
   });
 

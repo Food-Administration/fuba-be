@@ -35,6 +35,42 @@ class MealService {
     return await Meal.findByIdAndUpdate(id, data, { new: true }).populate("vendor", "first_name last_name email");
   }
 
+  async updateWithImage(
+    id: string,
+    data: Partial<IMeal>,
+    file?: Express.Multer.File,
+    uploadedBy?: string
+  ): Promise<IMeal | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
+    const meal = await Meal.findById(id);
+    if (!meal) return null;
+
+    if (file) {
+      if (meal.image) {
+        try {
+          const urlParts = meal.image.split("/");
+          const publicIdWithExt = urlParts.slice(-2).join("/");
+          const publicId = publicIdWithExt.replace(/\.[^/.]+$/, "");
+          await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+        } catch (error) {
+          console.error("Failed to delete old meal image:", error);
+        }
+      }
+
+      data.image = file.path;
+
+      await FileService.saveFileMetadata(file, {
+        uploadedBy,
+        folder: "meals",
+        associatedModel: "Meal",
+        associatedId: id,
+      });
+    }
+
+    return await Meal.findByIdAndUpdate(id, data, { new: true });
+  }
+
   async delete(id: string): Promise<IMeal | null> {
     if (!Types.ObjectId.isValid(id)) return null;
     return await Meal.findByIdAndDelete(id);

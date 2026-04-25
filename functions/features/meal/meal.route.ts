@@ -20,8 +20,8 @@ router.get("/vendor/:vendorId", MealController.getByVendor);
 // Get a meal by ID
 router.get("/:id", MealController.getById);
 
-// Update a meal (owner only)
-router.put("/:id", jwtAuth, MealController.update);
+// Update a meal (owner only, with optional image)
+router.put("/:id", jwtAuth, uploadImage.single("image"), MealController.update);
 
 // Update meal image (owner only)
 router.patch("/:id/image", jwtAuth, uploadImage.single("image"), MealController.updateImage);
